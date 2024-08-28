@@ -2,8 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Generated,
   Index,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../enums/user-role.enum';
@@ -12,9 +13,8 @@ import { Gender } from '@/user/enums/gender.enum';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn({
-    type: 'bigint',
-  })
+  @PrimaryColumn({ type: 'number', precision: 10, scale: 0 })
+  @Generated('increment')
   _id: number;
 
   @Column({ unique: true, length: 50, nullable: true })
@@ -23,7 +23,7 @@ export class User {
   @Column({ unique: true, length: 100, nullable: false })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Exclude()
   password: string;
 
@@ -39,12 +39,16 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   birth?: Date;
 
-  @Column({ type: 'enum', enum: Gender, default: Gender.OTHER })
+  @Column({
+    type: 'varchar2',
+    length: 10,
+    default: Gender.OTHER,
+  })
   gender?: Gender;
 
   @Column({
-    type: 'enum',
-    enum: UserRole,
+    type: 'varchar2',
+    length: 10,
     default: UserRole.STUDENT,
   })
   @Index()

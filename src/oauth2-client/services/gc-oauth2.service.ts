@@ -15,8 +15,8 @@ export class GcOAuth2Service implements IOAuth2Client {
 
     const isProduction = process.env.NODE_ENV === 'production';
     const redirectUri = isProduction
-      ? web.redirect_uris?.[0]
-      : web.redirect_uris?.[1];
+      ? web.redirect_uris?.[1]
+      : web.redirect_uris?.[0];
 
     if (!clientId || !clientSecret || !redirectUri) {
       throw new Error('Google Cloud OAuth configuration is incomplete');

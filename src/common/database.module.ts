@@ -9,15 +9,18 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get('DB_HOST', 'localhost'),
-        port: configService.get<number>('DB_PORT', 3306),
-        username: configService.get('DB_USERNAME', 'root'),
-        password: configService.get('DB_PASSWORD', 'password'),
-        database: configService.get('DB_DATABASE', 'your_database_name'),
+        type: 'oracle',
+        connectString: configService.get('DB_CONNECT_STRING'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
         entities: [User],
         synchronize: configService.get<boolean>('DB_SYNCHRONIZE', false),
         namingStrategy: new SnakeNamingStrategy(),
+        extra: {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
       }),
       inject: [ConfigService],
     }),
