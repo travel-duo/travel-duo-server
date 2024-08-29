@@ -41,5 +41,5 @@ jobs:
           git pull origin main
           yarn
           npm run build
-          pm2 restart travel-duo-server || pm2 start npm --name "travel-duo-server" -- start
+          pm2 restart travel-duo-server || pm2 start npm --name "travel-duo-server" -- start:prod
           ENDSSH
