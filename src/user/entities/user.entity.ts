@@ -13,7 +13,7 @@ import { Gender } from '@/user/enums/gender.enum';
 
 @Entity('users')
 export class User {
-  @PrimaryColumn({ type: 'number', precision: 10, scale: 0 })
+  @PrimaryColumn({ type: 'integer', precision: 10, scale: 0 })
   @Generated('increment')
   _id: number;
 
@@ -43,14 +43,14 @@ export class User {
   birth?: Date;
 
   @Column({
-    type: 'varchar2',
+    type: 'varchar',
     length: 10,
     default: Gender.OTHER,
   })
   gender?: Gender;
 
   @Column({
-    type: 'varchar2',
+    type: 'varchar',
     length: 10,
     default: UserRole.STUDENT,
   })
