@@ -100,7 +100,7 @@ jobs:
         run: |
           # SSH 설정
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
 
@@ -119,7 +119,7 @@ jobs:
           # 애플리케이션 배포
           cd ~/travel-duo-server  # 배포할 디렉터리 경로
           git pull origin main
-          yarn
-          npm run build
+          yarn install
+          yarn build
           pm2 restart travel-duo-server || pm2 start npm --name "travel-duo-server" -- start:prod
           ENDSSH
