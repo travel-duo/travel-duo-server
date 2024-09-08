@@ -102,26 +102,20 @@ jobs:
 
       - name: Deploy to AWS EC2
         run: |
-        # SSH 설정
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-        # SSH를 통해 EC2에 접속하여 명령 실행
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
           
-        # NVM 초기화
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-        # Node.js 버전 확인 및 설정
           nvm use 18 || nvm install 18
 
-        # 전역 패키지 설치
           npm install -g yarn pm2
 
-        # 애플리케이션 배포
           cd ~/travel-duo-server
           git pull origin main
           yarn install
