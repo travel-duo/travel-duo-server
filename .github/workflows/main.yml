@@ -100,28 +100,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # AWS credentials 설정
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Deploy to AWS EC2
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}  # AWS EC2 비공개 키
-          SERVER_IP: ${{ secrets.EC2_HOST }}            # EC2 퍼블릭 IP 또는 도메인
-          SERVER_USER: ${{ secrets.EC2_USER }}          # EC2 사용자 (보통 ec2-user 또는 ubuntu)
         run: |
           # SSH 설정
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
           # SSH를 통해 EC2에 접속하여 명령 실행
-          ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
+          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
           # NVM 초기화
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
