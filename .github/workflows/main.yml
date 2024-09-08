@@ -57,13 +57,13 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install SSH Key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa  
+
+      - name: Deploy to EC2 via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
           
           # NVM 초기화
           export NVM_DIR="$HOME/.nvm"
@@ -75,7 +75,7 @@ jobs:
           # 애플리케이션 배포
           cd /home/ec2-user/travel-duo-server  # 애플리케이션 경로
           git pull origin main  # 최신 코드 가져오기
-          yarn          # 의존성 설치
-          npm run build         # 애플리케이션 빌드
-          pm2 restart travel-duo-server || pm2 start npm --name "travel-duo-server"       # PM2로 애플리케이션 재시작
+          yarn install  # 의존성 설치
+          npm run build  # 애플리케이션 빌드
+          pm2 restart travel-duo-server || pm2 start npm --name "travel-duo-server"  # PM2로 애플리케이션 재시작
           EOF
