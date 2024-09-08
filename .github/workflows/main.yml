@@ -107,7 +107,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-          ssh $SERVER_USER@$SERVER_IP << 'ENDSSH'
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'ENDSSH'
           
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
