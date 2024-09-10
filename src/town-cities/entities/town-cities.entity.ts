@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany,
+  OneToMany, JoinColumn,
 } from 'typeorm';
 import { CountryStates } from '@/country-states/entities/country-states.entity';
 import { Locations } from '@/locations/entities/locations.entity';
@@ -30,9 +30,10 @@ export class TownCities {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => Locations, (locations) => locations.townCityId)
-  locations: Locations[];
-
   @ManyToOne(() => CountryStates, (countryState) => countryState.townCities)
-  countryStateId: CountryStates;
+  @JoinColumn({ name: 'country_state_id' })
+  countryState: CountryStates;
+
+  @OneToMany(() => Locations, (locations) => locations.townCities)
+  locations: Locations[];
 }

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn} from 'typeorm';
 import { Users } from '@/user/entities/users.entity';
 
 @Entity('badges')
@@ -13,5 +13,6 @@ export class Badges {
   imagePath: string;
 
   @ManyToOne(() => Users, (user) => user.badges)
-  userId: Users;
+  @JoinColumn({ name: 'user_id' })
+  user: Users;
 }

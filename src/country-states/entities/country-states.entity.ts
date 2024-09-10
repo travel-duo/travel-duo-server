@@ -22,6 +22,6 @@ export class CountryStates {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => TownCities, (townCities) => townCities.countryStateId)
+  @OneToMany(() => TownCities, (townCities) => townCities.countryState)
   townCities: TownCities[];
 }

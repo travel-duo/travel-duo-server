@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Travels } from '@/travels/entities/travels.entity';
 import { Users } from '@/user/entities/users.entity';
@@ -24,8 +25,10 @@ export class TravelMedias {
   updatedAt: Date;
 
   @ManyToOne(() => Travels, (travels) => travels.travelMedias)
-  travelId: Travels;
+  @JoinColumn({ name: 'travel_id' })
+  travel: Travels;
 
   @ManyToOne(() => Users, (users) => users.travelMedias)
-  creatorId: Users;
+  @JoinColumn({ name: 'creator_id' })
+  creator: Users;
 }

@@ -70,15 +70,15 @@ export class Users {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => Travels, (travels) => travels.creatorId)
+  @OneToMany(() => Travels, (travels) => travels.creator)
   travels: Travels[];
 
-  @OneToMany(() => TravelMedias, (travelMedia) => travelMedia.creatorId)
+  @OneToMany(() => TravelMedias, (travelMedia) => travelMedia.creator)
   travelMedias: TravelMedias[];
 
-  @OneToMany(() => TravelMembers, (travelMembers) => travelMembers.userId)
+  @OneToMany(() => TravelMembers, (travelMembers) => travelMembers.user)
   travelMembers: TravelMembers[];
 
-  @OneToMany(() => Badges, (badges) => badges.userId)
+  @OneToMany(() => Badges, (badges) => badges.user)
   badges: Badges[];
 }

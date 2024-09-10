@@ -3,7 +3,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
+  ManyToOne, JoinColumn,
 } from 'typeorm';
 import { Travels } from '@/travels/entities/travels.entity';
 import { Users } from '@/user/entities/users.entity';
@@ -13,6 +13,9 @@ export class TravelMembers {
   @PrimaryGeneratedColumn('increment')
   _id: bigint;
 
+  @ManyToOne(() => Users, (user) => user.travelMembers)
+  user: Users;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 
@@ -20,8 +23,6 @@ export class TravelMembers {
   updatedAt: Date;
 
   @ManyToOne(() => Travels, (travels) => travels.travelMembers)
-  travelId: Travels;
-
-  @ManyToOne(() => Users, (user) => user.travelMembers)
-  userId: Users;
+  @JoinColumn({ name: 'travel_id' })
+  travel: Travels;
 }

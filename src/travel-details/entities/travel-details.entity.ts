@@ -36,9 +36,9 @@ export class TravelDetails {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => Locations, (locations) => locations.travelDetailId)
-  locations: Locations[];
-
   @ManyToOne(() => Travels, (travels) => travels.travelDetails)
-  travelId: Travels;
+  travel: Travels;
+
+  @OneToMany(() => Locations, (locations) => locations.travelDetails)
+  locations: Locations[];
 }

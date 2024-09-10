@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { TravelDetails } from '@/travel-details/entities/travel-details.entity';
 import { Category } from '@/locations/enums/category';
@@ -52,8 +53,10 @@ export class Locations {
   updatedAt: Date;
 
   @ManyToOne(() => TravelDetails, (travelDetails) => travelDetails.locations)
-  travelDetailId: TravelDetails;
+  @JoinColumn({ name: 'travel_details_id' })
+  travelDetails: TravelDetails;
 
   @ManyToOne(() => TownCities, (townCities) => townCities.locations)
-  townCityId: TownCities;
+  @JoinColumn({ name: 'town_cities_id' })
+  townCities: TownCities;
 }

@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 import { Users } from '@/user/entities/users.entity';
 import { TravelMedias } from '@/travel-medias/entities/travel-medias.entity';
@@ -41,15 +42,16 @@ export class Travels {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  @OneToMany(() => TravelMembers, (travelMembers) => travelMembers.travelId)
+  @ManyToOne(() => Users, (user) => user.travels)
+  @JoinColumn({ name: 'creator_id' })
+  creator: Users;
+
+  @OneToMany(() => TravelMembers, (travelMembers) => travelMembers.travel)
   travelMembers: TravelMembers[];
 
-  @OneToMany(() => TravelMedias, (travelMedia) => travelMedia.travelId)
+  @OneToMany(() => TravelMedias, (travelMedia) => travelMedia.travel)
   travelMedias: TravelMedias[];
 
-  @OneToMany(() => TravelDetails, (travelDetails) => travelDetails.travelId)
+  @OneToMany(() => TravelDetails, (travelDetails) => travelDetails.travel)
   travelDetails: TravelDetails[];
-
-  @ManyToOne(() => Users, (user) => user.travels)
-  creatorId: Users;
 }
