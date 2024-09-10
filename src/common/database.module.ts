@@ -38,7 +38,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
           TownCities,
           CountryStates,
         ],
-        synchronize: true, //configService.get<boolean>('DB_SYNCHRONIZE', false),
+        synchronize: false, //configService.get<boolean>('DB_SYNCHRONIZE', false),
         namingStrategy: new SnakeNamingStrategy(),
         extra: {
           ssl: {
