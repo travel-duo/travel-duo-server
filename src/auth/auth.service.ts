@@ -6,6 +6,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { UserRole } from '@/user/enums/user-role.enum';
 import { validateGoogleIdToken } from '@/auth/utils/auth.util';
+import { FlutterLoginUserDto } from '@/auth/dto/flutter-login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,14 @@ export class AuthService {
     throw new UnauthorizedException('이메일 주소나 비밀번호가 잘못되었습니다.');
   }
 
+  async loginAndRegisterFlutter(flutterLoginUserDto: FlutterLoginUserDto) {
+    return this.LoginOrRegisterByOauth2(
+      flutterLoginUserDto.email,
+      flutterLoginUserDto.name,
+      flutterLoginUserDto.oauthType,
+    );
+  }
+
   async validateOAuthUser(provider: string, tokenData: any) {
     if (provider === 'google') {
       const { id_token } = tokenData;
@@ -50,7 +59,11 @@ export class AuthService {
     throw new UnauthorizedException('지원하지 않는 OAuth 공급자입니다.');
   }
 
-  async LoginOrRegisterByOauth2(email: string, name: string) {
+  async LoginOrRegisterByOauth2(
+    email: string,
+    name: string,
+    oauthType?: string,
+  ) {
     let user = await this.usersService.findOneByEmail(email);
     if (!user) {
       user = await this.usersService.create({
@@ -58,6 +71,7 @@ export class AuthService {
         name,
         password: '',
         role: UserRole.STUDENT,
+        oauthType,
       });
     }
     const payload = { email: user.email, sub: user._id };

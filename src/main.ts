@@ -36,6 +36,7 @@ async function bootstrap() {
     ], // 클라이언트 도메인
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
+    allowedHeaders: ['X-Api-Key', 'Content-Type', 'Authorization'],
   });
 
   const config = new DocumentBuilder()
