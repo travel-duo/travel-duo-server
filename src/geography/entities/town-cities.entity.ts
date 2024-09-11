@@ -5,10 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany, JoinColumn,
+  OneToMany,
+  JoinColumn,
 } from 'typeorm';
-import { CountryStates } from '@/country-states/entities/country-states.entity';
-import { Locations } from '@/locations/entities/locations.entity';
+import { CountryStates } from '@/geography/entities/country-states.entity';
+import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 
 @Entity('town_cities')
 export class TownCities {
@@ -34,6 +35,6 @@ export class TownCities {
   @JoinColumn({ name: 'country_state_id' })
   countryState: CountryStates;
 
-  @OneToMany(() => Locations, (locations) => locations.townCities)
-  locations: Locations[];
+  @OneToMany(() => TravelLocations, (locations) => locations.townCities)
+  locations: TravelLocations[];
 }

@@ -7,17 +7,17 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { TravelDetails } from '@/travel-details/entities/travel-details.entity';
-import { Category } from '@/locations/enums/category';
-import { TownCities } from '@/town-cities/entities/town-cities.entity';
+import { TravelDetails } from '@/travel/entities/travel-details.entity';
+import { LocationType } from '@/travel/enums/location-type';
+import { TownCities } from '@/geography/entities/town-cities.entity';
 
-@Entity('locations')
-export class Locations {
+@Entity('travel_locations')
+export class TravelLocations {
   @PrimaryGeneratedColumn('increment')
   _id: bigint;
 
   @Column({ type: 'varchar', nullable: true })
-  category: Category;
+  locationType: LocationType;
 
   @Column({ type: 'varchar', nullable: true })
   icon: string;

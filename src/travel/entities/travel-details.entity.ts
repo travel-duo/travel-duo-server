@@ -7,8 +7,8 @@ import {
   ManyToOne,
   OneToMany,
 } from 'typeorm';
-import { Travels } from '@/travels/entities/travels.entity';
-import { Locations } from '@/locations/entities/locations.entity';
+import { Travels } from '@/travel/entities/travels.entity';
+import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 
 @Entity('travel_details')
 export class TravelDetails {
@@ -39,6 +39,6 @@ export class TravelDetails {
   @ManyToOne(() => Travels, (travels) => travels.travelDetails)
   travel: Travels;
 
-  @OneToMany(() => Locations, (locations) => locations.travelDetails)
-  locations: Locations[];
+  @OneToMany(() => TravelLocations, (locations) => locations.travelDetails)
+  locations: TravelLocations[];
 }

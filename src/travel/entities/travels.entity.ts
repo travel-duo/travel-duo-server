@@ -9,9 +9,9 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Users } from '@/user/entities/users.entity';
-import { TravelMedias } from '@/travel-medias/entities/travel-medias.entity';
-import { TravelMembers } from '@/travel-members/entities/travel-members.entity';
-import { TravelDetails } from '@/travel-details/entities/travel-details.entity';
+import { TravelMedias } from '@/travel/entities/travel-medias.entity';
+import { TravelMembers } from '@/travel/entities/travel-members.entity';
+import { TravelDetails } from '@/travel/entities/travel-details.entity';
 
 @Entity('travels')
 export class Travels {

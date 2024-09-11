@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Users } from '@/user/entities/users.entity';
-import { Travels } from '@/travels/entities/travels.entity';
-import { TravelMedias } from '@/travel-medias/entities/travel-medias.entity';
-import { TravelMembers } from '@/travel-members/entities/travel-members.entity';
-import { Badges } from '@/badges/entities/badges.entity';
-import { TravelDetails } from '@/travel-details/entities/travel-details.entity';
-import { Locations } from '@/locations/entities/locations.entity';
-import { TownCities } from '@/town-cities/entities/town-cities.entity';
-import { CountryStates } from '@/country-states/entities/country-states.entity';
+import { Travels } from '@/travel/entities/travels.entity';
+import { TravelMedias } from '@/travel/entities/travel-medias.entity';
+import { TravelMembers } from '@/travel/entities/travel-members.entity';
+import { Badges } from '@/badge/entities/badges.entity';
+import { TravelDetails } from '@/travel/entities/travel-details.entity';
+import { TravelLocations } from '@/travel/entities/travel-locations.entity';
+import { TownCities } from '@/geography/entities/town-cities.entity';
+import { CountryStates } from '@/geography/entities/country-states.entity';
 
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
@@ -34,7 +34,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
           TravelMembers,
           Badges,
           TravelDetails,
-          Locations,
+          TravelLocations,
           TownCities,
           CountryStates,
         ],

@@ -8,10 +8,10 @@ import {
   Unique,
   Index,
 } from 'typeorm';
-import { Travels } from '@/travels/entities/travels.entity';
-import { TravelMedias } from '@/travel-medias/entities/travel-medias.entity';
-import { TravelMembers } from '@/travel-members/entities/travel-members.entity';
-import { Badges } from '@/badges/entities/badges.entity';
+import { Travels } from '@/travel/entities/travels.entity';
+import { TravelMedias } from '@/travel/entities/travel-medias.entity';
+import { TravelMembers } from '@/travel/entities/travel-members.entity';
+import { Badges } from '@/badge/entities/badges.entity';
 import { Gender } from '@/user/enums/gender.enum';
 import { UserRole } from '@/user/enums/user-role.enum';
 

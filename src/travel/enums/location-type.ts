@@ -1,4 +1,4 @@
-export enum Category {
+export enum LocationType {
   RESTAURANT = 'restaurant',
   BAKERY = 'bakery',
   TOURIST_SPOT = 'tourist_spot',

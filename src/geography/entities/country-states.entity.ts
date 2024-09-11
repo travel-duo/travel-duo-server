@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { TownCities } from '@/town-cities/entities/town-cities.entity';
+import { TownCities } from '@/geography/entities/town-cities.entity';
 
 @Entity('country_states')
 export class CountryStates {
