@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserModule } from '@/user/user.module';
 import { OAuth2ClientModule } from '@/oauth2-client/oauth2-client.module';
+import { GeographyModule } from '@/geography/geography.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OAuth2ClientModule } from '@/oauth2-client/oauth2-client.module';
     ConfigModule,
     UserModule,
     OAuth2ClientModule,
+    GeographyModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
