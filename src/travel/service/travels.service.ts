@@ -41,8 +41,13 @@ export class TravelsService extends SearchFilterService {
     return await this.travelsRepository.save(travel);
   }
 
+  async fineAll(): Promise<Travels[]> {
+    return await this.travelsRepository.find();
+  }
+
   /**
    * 특정 여행 조회
+   *
    * @param id
    */
   async findOne(id: bigint): Promise<Travels> {
@@ -51,5 +56,24 @@ export class TravelsService extends SearchFilterService {
       throw new Error(`Travel with ID "${id}" not found`);
     }
     return travel;
+  }
+
+  /**
+   * 내 여행 조회
+   *
+   * @param userId
+   */
+  async findTravelsByUserId(userId: bigint): Promise<Travels[]> {
+    const travels = await this.travelsRepository
+      .createQueryBuilder('travels')
+      .leftJoin('travels.creator', 'users') // Join the creator (user)
+      .where('users._id = :userId', { userId }) // Filter by user's _id
+      .getMany();
+
+    if (!travels.length) {
+      throw new Error(`No travels found for user with ID "${userId}"`);
+    }
+
+    return travels;
   }
 }
