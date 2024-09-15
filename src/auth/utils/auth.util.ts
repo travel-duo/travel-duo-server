@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { AuthRequest } from '@/auth/interfaces/auth-request.interface';
 import * as jwt from 'jsonwebtoken';
 
-export function getUserId(req: AuthRequest): number {
+export function getUserId(req: AuthRequest): bigint {
   const userId = (req as any).user?.userId;
   if (!userId) {
     throw new UnauthorizedException('User ID not found in request');
