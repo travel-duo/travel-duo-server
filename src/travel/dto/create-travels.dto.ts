@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateTravelDto {
+export class CreateTravelsDto {
   @ApiProperty({
     example: false,
     description: 'shared status of the travel',
@@ -26,13 +26,13 @@ export class CreateTravelDto {
   description: string;
 
   @ApiProperty({
-    example: '2024-02-01T00:00:00+09:00',
+    example: '2024-02-01T00:00:00',
     description: 'start date of the travel',
   })
   startDate: Date;
 
   @ApiProperty({
-    example: '2024-02-02T00:00:00+09:00',
+    example: '2024-02-02T00:00:00',
     description: 'end date of the travel',
   })
   endDate: Date;

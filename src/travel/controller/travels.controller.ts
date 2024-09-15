@@ -1,6 +1,6 @@
 import { TravelsService } from '@/travel/service/travels.service';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { CreateTravelDto } from '@/travel/dto/create-travel.dto';
+import { CreateTravelsDto } from '@/travel/dto/create-travels.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -26,7 +26,7 @@ export class TravelsController {
     status: 201,
     description: 'The record has been successfully created.',
   })
-  async create(@Body() createTravelDto: CreateTravelDto) {
+  async create(@Body() createTravelDto: CreateTravelsDto) {
     return await this.travelsService.create(createTravelDto);
   }
 }
