@@ -10,6 +10,7 @@ import { OAuth2ClientModule } from '@/oauth2-client/oauth2-client.module';
 import { GeographyModule } from '@/geography/geography.module';
 import { TravelsModule } from '@/travel/module/travels.module';
 import { TravelDetailsModule } from '@/travel/module/travel-details.module';
+import { TravelLocationsModule } from '@/travel/module/travel-locations.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { TravelDetailsModule } from '@/travel/module/travel-details.module';
     GeographyModule,
     TravelsModule,
     TravelDetailsModule,
+    TravelLocationsModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

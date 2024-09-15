@@ -54,4 +54,32 @@ export class GeographyService extends SearchFilterService {
 
     return await this.townCitiesRepository.save(newCity);
   }
+
+    /**
+     * 특정 행정 구역 조회
+     * @param id
+     */
+    async findOneCountryState(id: bigint): Promise<CountryStates> {
+      const countryState = await this.countryStatesRepository.findOne({
+        where: {_id: id},
+      });
+      if (!countryState) {
+        throw new NotFoundException(`CountryState with ID "${id}" not found`);
+      }
+      return countryState;
+    }
+
+    /**
+     * 특정 시,군,구 조회
+     * @param id
+     */
+    async findOneTownCity(id: bigint): Promise<TownCities> {
+      const townCity = await this.townCitiesRepository.findOne({
+        where: {_id: id},
+      });
+      if (!townCity) {
+        throw new NotFoundException(`TownCity with ID "${id}" not found`);
+      }
+      return townCity;
+    }
 }

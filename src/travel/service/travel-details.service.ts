@@ -41,4 +41,19 @@ export class TravelDetailsService extends SearchFilterService {
     });
     return await this.travelDetailRepository.save(travelDetail);
   }
+
+  /**
+   * 특정 상세 여행 조회
+   *
+   * @param id
+   */
+  async findOne(id: bigint): Promise<TravelDetails> {
+    const travelDetail = await this.travelDetailRepository.findOne({
+      where: { _id: id },
+    });
+    if (!travelDetail) {
+      throw new Error(`TravelDetails with ID "${id}" not found`);
+    }
+    return travelDetail;
+  }
 }

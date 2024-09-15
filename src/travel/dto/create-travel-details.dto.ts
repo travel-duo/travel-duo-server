@@ -8,7 +8,7 @@ export class CreateTravelDetailsDto {
   icon: string;
 
   @ApiProperty({
-    example: 'title',
+    example: 'Day-1',
     description: 'title of the travel detail',
   })
   title: string;
@@ -33,7 +33,7 @@ export class CreateTravelDetailsDto {
 
   @ApiProperty({
     example: 1,
-    description: 'travel id of the travel detail',
+    description: 'id of the travel',
   })
   travelId: bigint;
 }
