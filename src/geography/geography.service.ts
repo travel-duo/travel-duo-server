@@ -55,31 +55,75 @@ export class GeographyService extends SearchFilterService {
     return await this.townCitiesRepository.save(newCity);
   }
 
-    /**
-     * 특정 행정 구역 조회
-     * @param id
-     */
-    async findOneCountryState(id: bigint): Promise<CountryStates> {
-      const countryState = await this.countryStatesRepository.findOne({
-        where: {_id: id},
-      });
-      if (!countryState) {
-        throw new NotFoundException(`CountryState with ID "${id}" not found`);
-      }
-      return countryState;
+  /**
+   * 특정 행정 구역 조회
+   * @param id
+   */
+  async findOneCountryState(id: bigint): Promise<CountryStates> {
+    const countryState = await this.countryStatesRepository.findOne({
+      where: { _id: id },
+    });
+    if (!countryState) {
+      throw new NotFoundException(`CountryState with ID "${id}" not found`);
+    }
+    return countryState;
+  }
+
+  /**
+   * 특정 시,군,구 조회
+   * @param id
+   */
+  async findOneTownCity(id: bigint): Promise<TownCities> {
+    const townCity = await this.townCitiesRepository.findOne({
+      where: { _id: id },
+    });
+    if (!townCity) {
+      throw new NotFoundException(`TownCity with ID "${id}" not found`);
+    }
+    return townCity;
+  }
+
+  /**
+   * 내가 방문한 특정 시,군,구 들을 조회
+   * @param userId
+   */
+  async findMyVisitedTownCities(userId: bigint): Promise<TownCities[]> {
+    const townCities = await this.townCitiesRepository
+        .createQueryBuilder('townCities')
+        .leftJoin('townCities.locations', 'travelLocations') // Join travelLocations
+        .leftJoin('travelLocations.travelDetails', 'travelDetails') // Join travelDetails
+        .leftJoin('travelDetails.travel', 'travel') // Join travel
+        .leftJoin('travel.creator', 'users') // Join users
+        .where('users._id = :userId', { userId }) // Filter by user _id
+        .distinct(true) // distinct results
+        .getMany();
+
+    if (!townCities.length) {
+      throw new NotFoundException(`No visited town cities found for user with ID "${userId}"`);
     }
 
-    /**
-     * 특정 시,군,구 조회
-     * @param id
-     */
-    async findOneTownCity(id: bigint): Promise<TownCities> {
-      const townCity = await this.townCitiesRepository.findOne({
-        where: {_id: id},
-      });
-      if (!townCity) {
-        throw new NotFoundException(`TownCity with ID "${id}" not found`);
-      }
-      return townCity;
+    return townCities;
+  }
+
+  /**
+   * 내가 방문한 특정 시,군,구 들의 방문수를 조회
+   * @param userId
+   */
+  async countVisitedTownCities(userId: bigint): Promise<number> {
+    const townCitiesCount = await this.townCitiesRepository
+        .createQueryBuilder('townCities')
+        .leftJoin('townCities.locations', 'travelLocations') // Join travelLocations
+        .leftJoin('travelLocations.travelDetails', 'travelDetails') // Join travelDetails
+        .leftJoin('travelDetails.travel', 'travel') // Join travels
+        .leftJoin('travel.creator', 'users') // Join users
+        .where('users._id = :userId', { userId }) // Filter by user _id
+        .distinct(true) // Ensure distinct results
+        .getCount(); // Get the count of distinct townCities
+
+    if (townCitiesCount === 0) {
+      throw new NotFoundException(`No visited town cities found for user with ID "${userId}"`);
     }
+
+    return townCitiesCount;
+  }
 }
