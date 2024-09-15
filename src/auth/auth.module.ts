@@ -8,6 +8,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserModule } from '@/user/user.module';
 import { OAuth2ClientModule } from '@/oauth2-client/oauth2-client.module';
 import { GeographyModule } from '@/geography/geography.module';
+import { TravelsModule } from '@/travel/module/travels.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { GeographyModule } from '@/geography/geography.module';
     UserModule,
     OAuth2ClientModule,
     GeographyModule,
+    TravelsModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

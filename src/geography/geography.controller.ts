@@ -10,6 +10,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { CreateTownCityDto } from '@/geography/dto/create-town-city.dto';
+import { TownCities } from '@/geography/entities/town-cities.entity';
 
 @Controller({
   path: 'geography',
@@ -22,8 +24,8 @@ export class GeographyController {
   constructor(private readonly geographyService: GeographyService) {}
 
   @Post('country-states')
-  // @UseGuards(AdminGuard)
-  @ApiOperation({ summary: 'country-states 생성' })
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'create country state' })
   @ApiResponse({
     status: 201,
     description: 'The record has been successfully created.',
@@ -31,6 +33,21 @@ export class GeographyController {
   async createCountryState(
     @Body() createCountryStateDto: CreateCountryStateDto,
   ): Promise<CountryStates> {
-    return this.geographyService.createCountryState(createCountryStateDto);
+    return await this.geographyService.createCountryState(
+      createCountryStateDto,
+    );
+  }
+
+  @Post('town-cities')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: 'create town city' })
+  @ApiResponse({
+    status: 201,
+    description: 'The record has been successfully created.',
+  })
+  async createTownCity(
+    @Body() createTownCityDto: CreateTownCityDto,
+  ): Promise<TownCities> {
+    return await this.geographyService.createTownCity(createTownCityDto);
   }
 }
