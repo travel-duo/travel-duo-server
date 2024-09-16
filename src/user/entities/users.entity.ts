@@ -21,7 +21,7 @@ export class Users {
   @PrimaryGeneratedColumn('increment')
   _id: bigint;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   oauthType: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

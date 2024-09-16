@@ -40,10 +40,10 @@ export class TravelLocations {
   @Column({ type: 'int', nullable: true })
   orderIndex: number;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   startDate: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   endDate: Date;
 
   @CreateDateColumn({ type: 'timestamp' })
