@@ -12,6 +12,8 @@ import { TownCities } from '@/geography/entities/town-cities.entity';
 import { CountryStates } from '@/geography/entities/country-states.entity';
 
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 @Module({
   imports: [
@@ -46,6 +48,12 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
           },
         },
       }),
+      async dataSourceFactory(option) {
+        if (!option) {
+          throw new Error('Invalid options passed');
+        }
+        return addTransactionalDataSource(new DataSource(option));
+      },
       inject: [ConfigService],
     }),
   ],
