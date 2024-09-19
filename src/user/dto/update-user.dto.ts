@@ -72,7 +72,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: '사용자 역할',
     enum: UserRole,
-    example: UserRole.STUDENT,
+    example: UserRole.USER,
   })
   @IsEnum(UserRole)
   @IsOptional()

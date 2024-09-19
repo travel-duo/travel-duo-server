@@ -8,6 +8,7 @@ import {
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
 import { CreateTravelDetailsDto } from '@/travel/dto/create-travel-details.dto';
+import { UserGuard } from '@/auth/guards/user.guard';
 
 @Controller({
   path: 'travel-details',
@@ -20,7 +21,7 @@ export class TravelDetailsController {
   constructor(private readonly travelDetailsService: TravelDetailsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserGuard)
   @ApiOperation({ summary: '새로운 상세 여행 생성' })
   @ApiResponse({
     status: 201,
