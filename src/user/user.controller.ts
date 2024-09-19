@@ -29,9 +29,9 @@ import { SearchResponseDto } from '@/common/dto/search-response.dto';
 import { SearchFilterV2Dto } from '@/common/dto/search-filter-v2.dto';
 import { FilterExpression } from '@/common/utils/filter/types';
 import { AdminGuard } from '@/auth/guards/admin.guard';
-import { AdminTeacherGuard } from '@/auth/guards/admin-teacher.guard';
 import { AuthRequest } from '@/auth/interfaces/auth-request.interface';
 import { getUserId } from '@/auth/utils/auth.util';
+import { UserGuard } from '@/auth/guards/user.guard';
 
 @Controller({
   path: 'users',
@@ -71,7 +71,7 @@ export class UserController {
   }
 
   @Get('email/:email')
-  @UseGuards(AdminTeacherGuard)
+  @UseGuards(UserGuard)
   @ApiOperation({ summary: '이메일로 특정 사용자 조회' })
   async findOneByEmail(@Param('email') email: string): Promise<Users> {
     const user = await this.usersService.findOneByEmail(email);
@@ -100,7 +100,7 @@ export class UserController {
   }
 
   @Put(':userId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserGuard)
   @ApiOperation({ summary: 'ID로 사용자 정보 업데이트' })
   async update(
     @Param('userId', ParseIntPipe) userId: bigint,
@@ -115,7 +115,7 @@ export class UserController {
 
   @Delete(':userId')
   @ApiOperation({ summary: 'ID로 사용자 삭제' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserGuard)
   async remove(@Param('userId', ParseIntPipe) userId: bigint): Promise<void> {
     const user = await this.usersService.findOne(userId);
 
