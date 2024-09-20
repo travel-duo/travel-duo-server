@@ -50,10 +50,16 @@ export class TownCitiesService extends SearchFilterService {
    * 시,군,구 전체 조회
    */
   async findAllTownCities(): Promise<TownCities[]> {
-    const townCities = await this.townCitiesRepository.find();
+    const townCities = await this.townCitiesRepository
+      .createQueryBuilder('townCities')
+      .innerJoin('townCities.countryState', 'countryState')
+      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .getMany();
+
     if (!townCities.length) {
       throw new NotFoundException('No town cities found');
     }
+
     return townCities;
   }
 
@@ -62,12 +68,17 @@ export class TownCitiesService extends SearchFilterService {
    * @param id
    */
   async findOneTownCity(id: bigint): Promise<TownCities> {
-    const townCity = await this.townCitiesRepository.findOne({
-      where: { _id: id },
-    });
+    const townCity = await this.townCitiesRepository
+      .createQueryBuilder('townCities')
+      .innerJoin('townCities.countryState', 'countryState')
+      .where('townCities._id = :id', { id })
+      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .getOne();
+
     if (!townCity) {
       throw new NotFoundException(`TownCity with ID "${id}" not found`);
     }
+
     return townCity;
   }
 
