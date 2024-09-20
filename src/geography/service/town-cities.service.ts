@@ -1,14 +1,15 @@
-import { SearchFilterService } from '@/common/search-filter.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CountryStates } from '@/geography/entities/country-states.entity';
+import { SearchFilterService } from '@/common/search-filter.service';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CountryStates } from '@/geography/entities/country-states.entity';
 import { Repository } from 'typeorm';
 import { TownCities } from '@/geography/entities/town-cities.entity';
-import { CreateCountryStateDto } from '@/geography/dto/create-country-state.dto';
 import { CreateTownCityDto } from '@/geography/dto/create-town-city.dto';
+import { Transactional } from 'typeorm-transactional';
+import { UpdateTownCityDto } from '@/geography/dto/update-town-city.dto';
 
 @Injectable()
-export class GeographyService extends SearchFilterService {
+export class TownCitiesService extends SearchFilterService {
   constructor(
     @InjectRepository(CountryStates)
     private countryStatesRepository: Repository<CountryStates>,
@@ -19,34 +20,10 @@ export class GeographyService extends SearchFilterService {
   }
 
   /**
-   * 행정 구역을 생성
-   * @param createCountryStateDto
-   */
-  async createCountryState(
-    createCountryStateDto: CreateCountryStateDto,
-  ): Promise<CountryStates> {
-    const newState = this.countryStatesRepository.create(createCountryStateDto);
-    return await this.countryStatesRepository.save(newState);
-  }
-
-  /**
-   * 특정 행정 구역 조회
-   * @param id
-   */
-  async findOneCountryState(id: bigint): Promise<CountryStates> {
-    const countryState = await this.countryStatesRepository.findOne({
-      where: { _id: id },
-    });
-    if (!countryState) {
-      throw new NotFoundException(`CountryState with ID "${id}" not found`);
-    }
-    return countryState;
-  }
-
-  /**
    * 시,군,구를 생성
    * @param createTownCityDto
    */
+  @Transactional()
   async createTownCity(
     createTownCityDto: CreateTownCityDto,
   ): Promise<TownCities> {
@@ -70,16 +47,38 @@ export class GeographyService extends SearchFilterService {
   }
 
   /**
+   * 시,군,구 전체 조회
+   */
+  async findAllTownCities(): Promise<TownCities[]> {
+    const townCities = await this.townCitiesRepository
+      .createQueryBuilder('townCities')
+      .innerJoin('townCities.countryState', 'countryState')
+      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .getMany();
+
+    if (!townCities.length) {
+      throw new NotFoundException('No town cities found');
+    }
+
+    return townCities;
+  }
+
+  /**
    * 특정 시,군,구 조회
    * @param id
    */
   async findOneTownCity(id: bigint): Promise<TownCities> {
-    const townCity = await this.townCitiesRepository.findOne({
-      where: { _id: id },
-    });
+    const townCity = await this.townCitiesRepository
+      .createQueryBuilder('townCities')
+      .innerJoin('townCities.countryState', 'countryState')
+      .where('townCities._id = :id', { id })
+      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .getOne();
+
     if (!townCity) {
       throw new NotFoundException(`TownCity with ID "${id}" not found`);
     }
+
     return townCity;
   }
 
@@ -90,11 +89,13 @@ export class GeographyService extends SearchFilterService {
   async findMyVisitedTownCities(userId: bigint): Promise<TownCities[]> {
     const townCities = await this.townCitiesRepository
       .createQueryBuilder('townCities')
+      .innerJoin('townCities.countryState', 'countryState')
       .leftJoin('townCities.locations', 'travelLocations') // Join travelLocations
       .leftJoin('travelLocations.travelDetails', 'travelDetails') // Join travelDetails
       .leftJoin('travelDetails.travel', 'travel') // Join travel
       .leftJoin('travel.creator', 'users') // Join users
       .where('users._id = :userId', { userId }) // Filter by user _id
+      .select(['townCities', 'countryState._id', 'countryState.name'])
       .distinct(true) // distinct results
       .getMany();
 
@@ -129,5 +130,58 @@ export class GeographyService extends SearchFilterService {
     }
 
     return townCitiesCount;
+  }
+
+  /**
+   * 특정 시,군,구를 업데이트
+   *
+   * @param updateTownCityDto
+   */
+  @Transactional()
+  async updateTownCity(
+    updateTownCityDto: UpdateTownCityDto,
+  ): Promise<TownCities> {
+    const townCity = await this.findOneTownCity(updateTownCityDto.id);
+    if (!townCity) {
+      throw new NotFoundException(
+        `TownCity with ID "${updateTownCityDto.id}" not found`,
+      );
+    }
+
+    const { countryStateId, ...townCityData } = updateTownCityDto;
+    const countryState = await this.countryStatesRepository.findOne({
+      where: { _id: countryStateId },
+    });
+
+    if (!countryState) {
+      throw new NotFoundException(
+        `CountryState with id ${countryStateId} not found`,
+      );
+    }
+
+    return await this.townCitiesRepository.save({
+      ...townCity,
+      ...townCityData,
+      countryState,
+    });
+  }
+
+  /**
+   * 특정 시,군,구를 삭제
+   * @param id
+   */
+  @Transactional()
+  async removeTownCity(id: bigint): Promise<boolean> {
+    const townCity = await this.findOneTownCity(id);
+    if (!townCity) {
+      throw new NotFoundException(`TownCity with ID "${id}" not found`);
+    }
+
+    try {
+      await this.townCitiesRepository.remove(townCity);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

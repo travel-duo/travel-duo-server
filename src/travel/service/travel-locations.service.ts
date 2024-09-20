@@ -3,10 +3,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 import { Repository } from 'typeorm';
-import { GeographyService } from '@/geography/geography.service';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
 import { fromZonedTime } from 'date-fns-tz';
-import {CreateTravelLocationsDto} from "@/travel/dto/create-travel-locations.dto";
+import { CreateTravelLocationsDto } from '@/travel/dto/create-travel-locations.dto';
+import { TownCitiesService } from '@/geography/service/town-cities.service';
 
 @Injectable()
 export class TravelLocationsService extends SearchFilterService {
@@ -14,7 +14,7 @@ export class TravelLocationsService extends SearchFilterService {
     @InjectRepository(TravelLocations)
     private travelLocationsRepository: Repository<TravelLocations>,
     private travelDetailsService: TravelDetailsService,
-    private townCityService: GeographyService,
+    private townCitiesService: TownCitiesService,
   ) {
     super();
   }
@@ -23,11 +23,14 @@ export class TravelLocationsService extends SearchFilterService {
    * 여행지 장소 생성
    * @param createTravelLocationsDto
    */
-  async create(createTravelLocationsDto: CreateTravelLocationsDto): Promise<TravelLocations> {
+  async create(
+    createTravelLocationsDto: CreateTravelLocationsDto,
+  ): Promise<TravelLocations> {
     const { travelDetailId, townCityId, startDate, endDate, ...locationData } =
       createTravelLocationsDto;
-    const travelDetails = await this.travelDetailsService.findOne(travelDetailId);
-    const townCities = await this.townCityService.findOneTownCity(townCityId);
+    const travelDetails =
+      await this.travelDetailsService.findOne(travelDetailId);
+    const townCities = await this.townCitiesService.findOneTownCity(townCityId);
 
     if (!travelDetails) {
       throw new Error(`TravelDetails with id ${travelDetailId} not found`);
