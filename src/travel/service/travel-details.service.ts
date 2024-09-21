@@ -28,7 +28,7 @@ export class TravelDetailsService extends SearchFilterService {
     const { travelId, startDate, endDate, ...travelDetailData } =
       createTravelDetailDto;
 
-    const travel = await this.travelsService.findOne(travelId);
+    const travel = await this.travelsService.findDeepTravel(travelId);
 
     const zoneStartDate = toZonedTime(startDate, 'Asia/Seoul');
     const zoneEndDate = toZonedTime(endDate, 'Asia/Seoul');

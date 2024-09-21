@@ -70,8 +70,8 @@ export class TownCitiesService extends SearchFilterService {
   async findOneTownCity(id: bigint): Promise<TownCities> {
     const townCity = await this.townCitiesRepository
       .createQueryBuilder('townCities')
-      .innerJoin('townCities.countryState', 'countryState')
       .where('townCities._id = :id', { id })
+      .innerJoin('townCities.countryState', 'countryState')
       .select(['townCities', 'countryState._id', 'countryState.name'])
       .getOne();
 
@@ -90,13 +90,13 @@ export class TownCitiesService extends SearchFilterService {
     const townCities = await this.townCitiesRepository
       .createQueryBuilder('townCities')
       .innerJoin('townCities.countryState', 'countryState')
-      .leftJoin('townCities.locations', 'travelLocations') // Join travelLocations
-      .leftJoin('travelLocations.travelDetails', 'travelDetails') // Join travelDetails
-      .leftJoin('travelDetails.travel', 'travel') // Join travel
-      .leftJoin('travel.creator', 'users') // Join users
-      .where('users._id = :userId', { userId }) // Filter by user _id
+      .leftJoin('townCities.locations', 'travelLocations')
+      .leftJoin('travelLocations.travelDetails', 'travelDetails')
+      .leftJoin('travelDetails.travel', 'travel')
+      .leftJoin('travel.creator', 'users')
+      .where('users._id = :userId', { userId })
       .select(['townCities', 'countryState._id', 'countryState.name'])
-      .distinct(true) // distinct results
+      .distinct(true)
       .getMany();
 
     if (!townCities.length) {
@@ -115,13 +115,13 @@ export class TownCitiesService extends SearchFilterService {
   async countVisitedTownCities(userId: bigint): Promise<number> {
     const townCitiesCount = await this.townCitiesRepository
       .createQueryBuilder('townCities')
-      .leftJoin('townCities.locations', 'travelLocations') // Join travelLocations
-      .leftJoin('travelLocations.travelDetails', 'travelDetails') // Join travelDetails
-      .leftJoin('travelDetails.travel', 'travel') // Join travels
-      .leftJoin('travel.creator', 'users') // Join users
-      .where('users._id = :userId', { userId }) // Filter by user _id
-      .distinct(true) // Ensure distinct results
-      .getCount(); // Get the count of distinct townCities
+      .leftJoin('townCities.locations', 'travelLocations')
+      .leftJoin('travelLocations.travelDetails', 'travelDetails')
+      .leftJoin('travelDetails.travel', 'travel')
+      .leftJoin('travel.creator', 'users')
+      .where('users._id = :userId', { userId })
+      .distinct(true)
+      .getCount();
 
     if (townCitiesCount === 0) {
       throw new NotFoundException(
