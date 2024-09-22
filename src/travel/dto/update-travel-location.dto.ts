@@ -1,5 +1,5 @@
-import { LocationType } from '@/travel/enums/location-type';
 import { ApiProperty } from '@nestjs/swagger';
+import { LocationType } from '@/travel/enums/location-type';
 import {
   IsDateString,
   IsInt,
@@ -8,7 +8,14 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateTravelLocationsDto {
+export class UpdateTravelLocationDto {
+  @IsInt()
+  @ApiProperty({
+    example: 1,
+    description: 'id of the travel location',
+  })
+  id: bigint;
+
   @IsOptional()
   @IsString()
   @ApiProperty({
@@ -96,7 +103,7 @@ export class CreateTravelLocationsDto {
   @IsInt()
   @ApiProperty({
     example: 1,
-    description: 'id of the town city',
+    description: 'town city id of the travel location',
   })
   townCityId: bigint;
 }

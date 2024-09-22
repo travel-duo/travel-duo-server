@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateTravelsDto {
+export class CreateTravelDto {
   @ApiProperty({
     example: false,
     description: 'shared status of the travel',

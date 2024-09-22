@@ -47,7 +47,7 @@ export class TravelDetailsService extends SearchFilterService {
    *
    * @param id
    */
-  async findOne(id: bigint): Promise<TravelDetails> {
+  async findOneTravelDetail(id: bigint): Promise<TravelDetails> {
     const travelDetail = await this.travelDetailRepository.findOne({
       where: { _id: id },
     });
