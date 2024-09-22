@@ -33,7 +33,7 @@ export class TravelsService extends SearchFilterService {
    * @param createTravelDto
    */
   @Transactional()
-  async create(createTravelDto: CreateTravelDto): Promise<Travels> {
+  async createTravel(createTravelDto: CreateTravelDto): Promise<Travels> {
     const { creatorId, startDate, endDate, ...travelData } = createTravelDto;
     const creator = await this.userService.findOne(creatorId);
 
@@ -56,7 +56,7 @@ export class TravelsService extends SearchFilterService {
   /**
    * 모든 여행 조회
    */
-  async findTravelAll(): Promise<Travels[]> {
+  async findAllTravel(): Promise<Travels[]> {
     const travels = await this.travelsRepository.find();
 
     if (!travels.length) {
@@ -69,14 +69,14 @@ export class TravelsService extends SearchFilterService {
   /**
    * 모든 여행 상세 조회
    */
-  async findDeepTravelAll(): Promise<Travels[]> {
+  async findAllTravelDeep(): Promise<Travels[]> {
     const travels = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoin('travels.creator', 'users')
       .leftJoin('travels.travelDetails', 'travelDetails')
       .leftJoin('travelDetails.locations', 'travelLocations')
-      .innerJoin('travelLocations.townCities', 'townCities')
-      .innerJoin('townCities.countryState', 'countryState')
+      .leftJoin('travelLocations.townCities', 'townCities')
+      .leftJoin('townCities.countryState', 'countryState')
       .select([
         'users',
         'travels',
@@ -114,14 +114,14 @@ export class TravelsService extends SearchFilterService {
    *
    * @param id
    */
-  async findDeepTravel(id: bigint): Promise<Travels> {
+  async findTravelDeep(id: bigint): Promise<Travels> {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoin('travels.creator', 'users')
       .leftJoin('travels.travelDetails', 'travelDetails')
       .leftJoin('travelDetails.locations', 'travelLocations')
-      .innerJoin('travelLocations.townCities', 'townCities')
-      .innerJoin('townCities.countryState', 'countryState')
+      .leftJoin('travelLocations.townCities', 'townCities')
+      .leftJoin('townCities.countryState', 'countryState')
       .select([
         'users',
         'travels',
@@ -164,14 +164,14 @@ export class TravelsService extends SearchFilterService {
    *
    * @param userId
    */
-  async findDeepTravelsByUserId(userId: bigint): Promise<Travels[]> {
+  async findTravelsDeepByUserId(userId: bigint): Promise<Travels[]> {
     const travels = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoin('travels.creator', 'users')
       .leftJoin('travels.travelDetails', 'travelDetails')
       .leftJoin('travelDetails.locations', 'travelLocations')
-      .innerJoin('travelLocations.townCities', 'townCities')
-      .innerJoin('townCities.countryState', 'countryState')
+      .leftJoin('travelLocations.townCities', 'townCities')
+      .leftJoin('townCities.countryState', 'countryState')
       .select([
         'users',
         'travels',
@@ -197,7 +197,7 @@ export class TravelsService extends SearchFilterService {
    */
   @Transactional()
   async updateTravel(updateTravelDto: UpdateTravelDto): Promise<Travels> {
-    const travel = await this.findDeepTravel(updateTravelDto.id);
+    const travel = await this.findTravelDeep(updateTravelDto.id);
 
     if (!travel) {
       throw new NotFoundException(
@@ -220,7 +220,7 @@ export class TravelsService extends SearchFilterService {
   async deleteTravel(id: bigint): Promise<boolean> {
     try {
       // 여행 조회
-      const travel = await this.findDeepTravel(id);
+      const travel = await this.findTravelDeep(id);
 
       if (!travel) {
         throw new NotFoundException(`Travel with id ${id} not found`);
