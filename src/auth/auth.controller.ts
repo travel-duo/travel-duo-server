@@ -50,7 +50,7 @@ export class AuthController {
     @Req() req: Request,
     @Body() flutterLoginUserDto: FlutterLoginUserDto,
   ) {
-    const apiKey = req.headers['X-Api-Key'];
+    const apiKey = req.headers['x-api-key'];
 
     if (!apiKey) {
       throw new UnauthorizedException('API 키가 제공되지 않았습니다.');
