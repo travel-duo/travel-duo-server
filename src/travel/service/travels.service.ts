@@ -2,7 +2,7 @@ import { SearchFilterService } from '@/common/search-filter.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Travels } from '@/travel/entities/travels.entity';
 import { Repository } from 'typeorm';
-import { CreateTravelsDto } from '@/travel/dto/create-travels.dto';
+import { CreateTravelDto } from '@/travel/dto/create-travel.dto';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { UserService } from '@/user/user.service';
 import { fromZonedTime } from 'date-fns-tz';
@@ -33,7 +33,7 @@ export class TravelsService extends SearchFilterService {
    * @param createTravelDto
    */
   @Transactional()
-  async create(createTravelDto: CreateTravelsDto): Promise<Travels> {
+  async create(createTravelDto: CreateTravelDto): Promise<Travels> {
     const { creatorId, startDate, endDate, ...travelData } = createTravelDto;
     const creator = await this.userService.findOne(creatorId);
 
@@ -197,7 +197,7 @@ export class TravelsService extends SearchFilterService {
    */
   @Transactional()
   async updateTravel(updateTravelDto: UpdateTravelDto): Promise<Travels> {
-    const travel = await this.findTravel(updateTravelDto.id);
+    const travel = await this.findDeepTravel(updateTravelDto.id);
 
     if (!travel) {
       throw new NotFoundException(

@@ -11,7 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { CreateTravelsDto } from '@/travel/dto/create-travels.dto';
+import { CreateTravelDto } from '@/travel/dto/create-travel.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -43,7 +43,7 @@ export class TravelsController {
     status: 201,
     description: 'The record has been successfully created.',
   })
-  async create(@Body() createTravelDto: CreateTravelsDto) {
+  async create(@Body() createTravelDto: CreateTravelDto) {
     return await this.travelsService.create(createTravelDto);
   }
 
