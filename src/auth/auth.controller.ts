@@ -5,15 +5,18 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthRequest } from '@/auth/interfaces/auth-request.interface';
 import { AuthGuard } from '@nestjs/passport';
+import { FlutterLoginUserDto } from '@/auth/dto/flutter-login-user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @ApiTags('auth')
 @Controller({
@@ -33,6 +36,33 @@ export class AuthController {
   @ApiOperation({ summary: '로그인을 진행합니다.' })
   async login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  FLUTTER_API_KEY = process.env.FLUTTER_API_KEY;
+
+  @Post('oauth2/flutter')
+  @ApiOperation({ summary: '로그인을 진행합니다.' })
+  @ApiHeader({
+    name: 'X-Api-Key',
+    description: 'API 키',
+  })
+  async loginAndRegisterFlutter(
+    @Req() req: Request,
+    @Body() flutterLoginUserDto: FlutterLoginUserDto,
+  ) {
+    const apiKey = req.headers['X-Api-Key'];
+
+    if (!apiKey) {
+      throw new UnauthorizedException('API 키가 제공되지 않았습니다.');
+    }
+
+    const isValidApiKey = await bcrypt.compare(apiKey, this.FLUTTER_API_KEY);
+
+    if (!isValidApiKey) {
+      throw new UnauthorizedException('유효하지 않은 API 키입니다.');
+    }
+
+    return this.authService.loginAndRegisterFlutter(flutterLoginUserDto);
   }
 
   @Get('google')

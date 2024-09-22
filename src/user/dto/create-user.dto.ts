@@ -22,6 +22,12 @@ export class CreateUserDto {
   password?: string;
 
   @ApiProperty({
+    example: 'google',
+    description: 'The login type (e.g. google, facebook)',
+  })
+  oauthType?: string;
+
+  @ApiProperty({
     example: 'John Doe',
     description: 'The name of the User',
   })
