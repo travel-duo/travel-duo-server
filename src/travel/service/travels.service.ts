@@ -218,29 +218,41 @@ export class TravelsService extends SearchFilterService {
    */
   @Transactional()
   async deleteTravel(id: bigint): Promise<boolean> {
-    const travel = await this.findTravel(id);
-
-    if (!travel) {
-      throw new NotFoundException(`Travel with id ${id} not found`);
-    }
-
     try {
+      // 여행 조회
+      const travel = await this.findDeepTravel(id);
+
+      if (!travel) {
+        throw new NotFoundException(`Travel with id ${id} not found`);
+      }
+
+      // 여행 상세 조회
       const travelDetails = await this.travelDetailsRepository.find({
         where: { travel: travel },
       });
 
-      if (travelDetails.length) {
-        const travelLocations = await this.travelLocationsRepository.find({
-          where: { travelDetails: travelDetails },
-        });
+      // 여행 상세가 존재할 경우
+      if (travelDetails.length > 0) {
+        for (const travelDetail of travelDetails) {
+          // 여행 장소 조회
+          const travelLocations = await this.travelLocationsRepository.find({
+            where: { travelDetails: travelDetail },
+          });
 
-        if (travelLocations.length) {
-          await this.travelLocationsRepository.remove(travelLocations);
+          // 여행 장소가 존재할 경우
+          if (travelLocations.length > 0) {
+            for (const travelLocation of travelLocations) {
+              // 여행 장소 삭제
+              await this.travelLocationsRepository.remove(travelLocation);
+            }
+          }
+          // 여행 상세 삭제
+          await this.travelDetailsRepository.remove(travelDetail);
         }
-
-        await this.travelDetailsRepository.remove(travelDetails);
       }
+      // 여행 삭제
       await this.travelsRepository.remove(travel);
+
       return true;
     } catch (error) {
       this.logger.error(
