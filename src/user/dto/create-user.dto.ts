@@ -62,9 +62,9 @@ export class CreateUserDto {
 
   @ApiProperty({
     enum: UserRole,
-    example: UserRole.STUDENT,
+    example: UserRole.USER,
     description: 'The role of the User',
-    default: UserRole.STUDENT,
+    default: UserRole.USER,
   })
   role: UserRole;
 

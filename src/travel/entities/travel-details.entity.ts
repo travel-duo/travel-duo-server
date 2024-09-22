@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToMany,
+  OneToMany, JoinColumn,
 } from 'typeorm';
 import { Travels } from '@/travel/entities/travels.entity';
 import { TravelLocations } from '@/travel/entities/travel-locations.entity';
@@ -24,10 +24,10 @@ export class TravelDetails {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   startDate: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   endDate: Date;
 
   @CreateDateColumn({ type: 'timestamp' })
@@ -37,6 +37,7 @@ export class TravelDetails {
   updatedAt: Date;
 
   @ManyToOne(() => Travels, (travels) => travels.travelDetails)
+  @JoinColumn({ name: 'travel_id' })
   travel: Travels;
 
   @OneToMany(() => TravelLocations, (locations) => locations.travelDetails)

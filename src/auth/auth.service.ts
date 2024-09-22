@@ -20,7 +20,7 @@ export class AuthService {
     const user = await this.usersService.create({
       ...registerUserDto,
       password: hashedPassword,
-      role: UserRole.STUDENT,
+      role: UserRole.USER,
     });
     const { password, ...result } = user;
     return result;
@@ -70,8 +70,8 @@ export class AuthService {
         email,
         name,
         password: '',
-        role: UserRole.STUDENT,
         oauthType,
+        role: UserRole.USER,
       });
     }
     const payload = { email: user.email, sub: user._id };
