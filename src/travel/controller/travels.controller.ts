@@ -2,10 +2,12 @@ import { TravelsService } from '@/travel/service/travels.service';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import { AuthRequest } from '@/auth/interfaces/auth-request.interface';
 import { getUserId } from '@/auth/utils/auth.util';
 import { AdminGuard } from '@/auth/guards/admin.guard';
 import { UserGuard } from '@/auth/guards/user.guard';
+import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
 
 @Controller({
   path: 'travels',
@@ -34,7 +37,7 @@ export class TravelsController {
   constructor(private readonly travelsService: TravelsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(UserGuard)
   @ApiOperation({ summary: '새로운 여행 생성' })
   @ApiResponse({
     status: 201,
@@ -51,8 +54,19 @@ export class TravelsController {
     status: 201,
     description: '모든 여행 조회 성공',
   })
-  async findAll(): Promise<Travels[]> {
-    return await this.travelsService.fineAll();
+  async findTravelAll(): Promise<Travels[]> {
+    return await this.travelsService.findTravelAll();
+  }
+
+  @Get('deep')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: '모든 여행 상세 조회' })
+  @ApiResponse({
+    status: 201,
+    description: '모든 여행 상세 조회 성공',
+  })
+  async findDeepTravelAll(): Promise<Travels[]> {
+    return await this.travelsService.findDeepTravelAll();
   }
 
   @Get(':travelId')
@@ -60,23 +74,72 @@ export class TravelsController {
   @ApiOperation({ summary: '특정 여행 조회' })
   @ApiResponse({
     status: 201,
-    description: '특정 여행 조회 성공',
+    description: '특정 여행 상세 조회 성공',
   })
-  async findOne(
+  async findTravel(
     @Param('travelId', ParseIntPipe) travelId: bigint,
   ): Promise<Travels> {
-    return await this.travelsService.findOne(travelId);
+    return await this.travelsService.findTravel(travelId);
+  }
+
+  @Get('deep/:travelId')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '특정 여행 상세 조회' })
+  @ApiResponse({
+    status: 201,
+    description: '특정 여행 상세 조회 성공',
+  })
+  async findDeepTravel(
+    @Param('travelId', ParseIntPipe) travelId: bigint,
+  ): Promise<Travels> {
+    return await this.travelsService.findDeepTravel(travelId);
   }
 
   @Get('me/get')
-  @UseGuards(UserGuard)
   @ApiOperation({ summary: '나의 여행 조회' })
   @ApiResponse({
     status: 201,
     description: '나의 여행 조회 성공',
   })
-  async findTravelsByUserId(@Req() req: AuthRequest): Promise<Travels[]> {
+  async findTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
     const userId = getUserId(req);
     return await this.travelsService.findTravelsByUserId(userId);
+  }
+
+  @Get('me/deep')
+  @ApiOperation({ summary: '나의 여행 상세 조회' })
+  @ApiResponse({
+    status: 201,
+    description: '나의 여행 상세 조회 성공',
+  })
+  async findDeepTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
+    const userId = getUserId(req);
+    return await this.travelsService.findDeepTravelsByUserId(userId);
+  }
+
+  @Put()
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '여행 수정' })
+  @ApiResponse({
+    status: 201,
+    description: '여행 수정 성공',
+  })
+  async updateTravel(
+    @Body() updateTravelDto: UpdateTravelDto,
+  ): Promise<Travels> {
+    return await this.travelsService.updateTravel(updateTravelDto);
+  }
+
+  @Delete(':travelId')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '여행 삭제' })
+  @ApiResponse({
+    status: 201,
+    description: '여행 삭제 성공',
+  })
+  async deleteTravel(
+    @Param('travelId', ParseIntPipe) travelId: bigint,
+  ): Promise<boolean> {
+    return await this.travelsService.deleteTravel(travelId);
   }
 }

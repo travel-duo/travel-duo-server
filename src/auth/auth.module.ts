@@ -10,7 +10,7 @@ import { OAuth2ClientModule } from '@/oauth2-client/oauth2-client.module';
 import { TravelsModule } from '@/travel/module/travels.module';
 import { TravelDetailsModule } from '@/travel/module/travel-details.module';
 import { TravelLocationsModule } from '@/travel/module/travel-locations.module';
-import { CountryStatesModule } from '@/geography/module/coutry-states.module';
+import { CountryStatesModule } from '@/geography/module/country-states.module';
 import { TownCitiesModule } from '@/geography/module/town-cities.module';
 
 @Module({

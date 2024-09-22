@@ -7,9 +7,12 @@ import { Travels } from '@/travel/entities/travels.entity';
 import { TravelsService } from '@/travel/service/travels.service';
 import { Users } from '@/user/entities/users.entity';
 import { UserService } from '@/user/user.service';
+import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, Travels, TravelDetails])],
+  imports: [
+    TypeOrmModule.forFeature([Users, Travels, TravelDetails, TravelLocations]),
+  ],
   controllers: [TravelDetailsController],
   providers: [UserService, TravelsService, TravelDetailsService],
   exports: [TravelDetailsService],

@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { TownCities } from '@/geography/entities/town-cities.entity';
 import { Transactional } from 'typeorm-transactional';
 import { CreateCountryStateDto } from '@/geography/dto/create-country-state.dto';
-import {Injectable, NotFoundException} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { UpdateCountryStateDto } from '@/geography/dto/update-country-state-dto';
 
 @Injectable()
@@ -18,6 +18,8 @@ export class CountryStatesService extends SearchFilterService {
   ) {
     super();
   }
+
+  private readonly logger = new Logger(CountryStatesService.name);
 
   /**
    * 행정 구역을 생성
@@ -108,6 +110,7 @@ export class CountryStatesService extends SearchFilterService {
       await this.countryStatesRepository.remove(countryState);
       return true;
     } catch (error) {
+      this.logger.error(error.message);
       return false;
     }
   }
