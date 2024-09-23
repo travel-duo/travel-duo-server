@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -117,5 +118,21 @@ export class TravelDetailsController {
     @Param('travelId', ParseIntPipe) travelId: bigint,
   ): Promise<TravelDetails[]> {
     return await this.travelDetailsService.findTravelDetailsDeepByTId(travelId);
+  }
+
+  /**
+   * 특정 여행 삭제
+   */
+  @Delete(':travelDetailId')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '특정 상세 여행 삭제' })
+  @ApiResponse({
+    status: 201,
+    description: '특정 상세 여행 삭제 성공',
+  })
+  async deleteTravelDetail(
+    @Param('travelDetailId', ParseIntPipe) travelDetailId: bigint,
+  ): Promise<boolean> {
+    return await this.travelDetailsService.deleteTravelDetail(travelDetailId);
   }
 }

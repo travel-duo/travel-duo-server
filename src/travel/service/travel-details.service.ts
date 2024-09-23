@@ -188,4 +188,25 @@ export class TravelDetailsService extends SearchFilterService {
       );
     }
   }
+
+  /**
+   * 특정 상세 여행 삭제
+   */
+  @Transactional()
+  async deleteTravelDetail(travelDetailId: bigint): Promise<boolean> {
+    const travelDetail = await this.findOneTravelDetail(travelDetailId);
+    if (!travelDetail) {
+      throw new Error(`TravelDetails with ID "${travelDetailId}" not found`);
+    }
+
+    try {
+      await this.travelDetailRepository.remove(travelDetail);
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete TravelDetails with id ${travelDetailId}: ${error.message}`,
+      );
+      return false;
+    }
+  }
 }
