@@ -1,7 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 
-export class CreateTravelDetailsDto {
+export class UpdateTravelDetailsDto {
+  @IsInt()
+  @ApiProperty({
+    example: 1,
+    description: 'id of the travel detail',
+  })
+  id: bigint;
+
   @IsOptional()
   @IsString()
   @ApiProperty({
@@ -39,11 +46,4 @@ export class CreateTravelDetailsDto {
     description: 'end date of the travel detail',
   })
   endDate: Date;
-
-  @IsInt()
-  @ApiProperty({
-    example: 1,
-    description: 'id of the travel',
-  })
-  travelId: bigint;
 }

@@ -44,7 +44,7 @@ export class TravelsController {
     description: 'The record has been successfully created.',
   })
   async create(@Body() createTravelDto: CreateTravelDto) {
-    return await this.travelsService.create(createTravelDto);
+    return await this.travelsService.createTravel(createTravelDto);
   }
 
   @Get()
@@ -55,7 +55,7 @@ export class TravelsController {
     description: '모든 여행 조회 성공',
   })
   async findTravelAll(): Promise<Travels[]> {
-    return await this.travelsService.findTravelAll();
+    return await this.travelsService.findAllTravel();
   }
 
   @Get('deep')
@@ -66,7 +66,7 @@ export class TravelsController {
     description: '모든 여행 상세 조회 성공',
   })
   async findDeepTravelAll(): Promise<Travels[]> {
-    return await this.travelsService.findDeepTravelAll();
+    return await this.travelsService.findAllTravelDeep();
   }
 
   @Get(':travelId')
@@ -92,7 +92,7 @@ export class TravelsController {
   async findDeepTravel(
     @Param('travelId', ParseIntPipe) travelId: bigint,
   ): Promise<Travels> {
-    return await this.travelsService.findDeepTravel(travelId);
+    return await this.travelsService.findTravelDeep(travelId);
   }
 
   @Get('me/get')
@@ -114,7 +114,7 @@ export class TravelsController {
   })
   async findDeepTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
     const userId = getUserId(req);
-    return await this.travelsService.findDeepTravelsByUserId(userId);
+    return await this.travelsService.findTravelsDeepByUserId(userId);
   }
 
   @Put()

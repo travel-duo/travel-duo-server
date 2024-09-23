@@ -65,9 +65,8 @@ export class TravelLocationsService extends SearchFilterService {
   async findAllTravelLocations(): Promise<TravelLocations[]> {
     const locations = await this.travelLocationsRepository
       .createQueryBuilder('travelLocations')
-      .innerJoin('travelLocations.townCities', 'townCities')
-      .innerJoin('townCities.countryState', 'countryState')
-      .select(['travelLocations', 'townCities', 'countryState'])
+      .innerJoinAndSelect('travelLocations.townCities', 'townCities')
+      .innerJoinAndSelect('townCities.countryState', 'countryState')
       .getMany();
 
     if (!locations.length) {
@@ -85,9 +84,8 @@ export class TravelLocationsService extends SearchFilterService {
   async findOneTravelLocation(id: bigint): Promise<TravelLocations> {
     const location = await this.travelLocationsRepository
       .createQueryBuilder('travelLocations')
-      .innerJoin('travelLocations.townCities', 'townCities')
-      .innerJoin('townCities.countryState', 'countryState')
-      .select(['travelLocations', 'townCities', 'countryState'])
+      .innerJoinAndSelect('travelLocations.townCities', 'townCities')
+      .innerJoinAndSelect('townCities.countryState', 'countryState')
       .where('travelLocations._id = :id', { id })
       .getOne();
 
@@ -108,10 +106,9 @@ export class TravelLocationsService extends SearchFilterService {
   ): Promise<TravelLocations[]> {
     const locations = await this.travelLocationsRepository
       .createQueryBuilder('travelLocations')
-      .innerJoin('travelLocations.travelDetails', 'travelDetails')
-      .innerJoin('travelLocations.townCities', 'townCities')
-      .innerJoin('townCities.countryState', 'countryState')
-      .select(['travelLocations', 'townCities', 'countryState'])
+      .innerJoinAndSelect('travelLocations.travelDetails', 'travelDetails')
+      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('travelDetails._id = :travelDetailId', { travelDetailId })
       .getMany();
 
@@ -171,10 +168,9 @@ export class TravelLocationsService extends SearchFilterService {
     try {
       return await this.travelLocationsRepository.save(location);
     } catch (error) {
-      this.logger.error(
+      throw new Error(
         `Failed to update TravelLocations with id ${id}: ${error.message}`,
       );
-      throw error;
     }
   }
 
