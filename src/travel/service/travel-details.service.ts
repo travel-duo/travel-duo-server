@@ -1,5 +1,5 @@
 import { SearchFilterService } from '@/common/search-filter.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { TravelDetails } from '@/travel/entities/travel-details.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,13 +8,17 @@ import { toZonedTime } from 'date-fns-tz';
 import { TravelsService } from '@/travel/service/travels.service';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateTravelDetailsDto } from '@/travel/dto/update-travel-details.dto';
+import { TravelLocationsService } from '@/travel/service/travel-locations.service';
 
 @Injectable()
 export class TravelDetailsService extends SearchFilterService {
   constructor(
     @InjectRepository(TravelDetails)
     private travelDetailRepository: Repository<TravelDetails>,
+    @Inject(forwardRef(() => TravelsService))
     private travelsService: TravelsService,
+    @Inject(forwardRef(() => TravelLocationsService))
+    private travelLocationsService: TravelLocationsService,
   ) {
     super();
   }
@@ -193,18 +197,59 @@ export class TravelDetailsService extends SearchFilterService {
    * 특정 상세 여행 삭제
    */
   @Transactional()
-  async deleteTravelDetail(travelDetailId: bigint): Promise<boolean> {
-    const travelDetail = await this.findOneTravelDetail(travelDetailId);
-    if (!travelDetail) {
-      throw new Error(`TravelDetails with ID "${travelDetailId}" not found`);
-    }
-
+  async removeTravelDetail(travelDetailId: bigint): Promise<boolean> {
     try {
+      const travelDetail = await this.findOneTravelDetailDeep(travelDetailId);
+      if (travelDetail.locations.length) {
+        const isRemoveLocations =
+          await this.travelLocationsService.removeTravelLocationsByTDId(
+            travelDetail._id,
+          );
+        if (!isRemoveLocations) {
+          throw new Error(
+            `Failed to remove TravelLocations with travelDetailId ${travelDetail._id}`,
+          );
+        }
+      }
       await this.travelDetailRepository.remove(travelDetail);
       return true;
     } catch (error) {
       this.logger.error(
         `Failed to delete TravelDetails with id ${travelDetailId}: ${error.message}`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * travelId로 상세 여행들 삭제
+   *
+   * @param travelId
+   */
+  @Transactional()
+  async removeTravelDetailsByTId(travelId: bigint): Promise<boolean> {
+    try {
+      const travelDetails = await this.findTravelDetailsByTId(travelId);
+
+      for (const travelDetail of travelDetails) {
+        if (travelDetail.locations.length) {
+          const isRemoveLocations =
+            await this.travelLocationsService.removeTravelLocationsByTDId(
+              travelDetail._id,
+            );
+          if (!isRemoveLocations) {
+            throw new Error(
+              `Failed to remove TravelLocations with travelDetailId ${travelDetail._id}`,
+            );
+          }
+        }
+      }
+
+      await this.travelDetailRepository.remove(travelDetails);
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to remove TravelDetails with travelId ${travelId}: ${error.message}`,
       );
       return false;
     }
