@@ -15,6 +15,8 @@ import { fromZonedTime } from 'date-fns-tz';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
+import { TravelMembersService } from '@/travel/service/travel-members.service';
+import { Users } from '@/user/entities/users.entity';
 
 @Injectable()
 export class TravelsService extends SearchFilterService {
@@ -24,6 +26,8 @@ export class TravelsService extends SearchFilterService {
     private userService: UserService,
     @Inject(forwardRef(() => TravelDetailsService))
     private travelDetailsService: TravelDetailsService,
+    @Inject(forwardRef(() => TravelMembersService))
+    private travelMembersService: TravelMembersService,
   ) {
     super();
   }
@@ -128,7 +132,7 @@ export class TravelsService extends SearchFilterService {
   }
 
   /**
-   * userId로 여행 조회
+   * userId로 생성한 여행 조회
    *
    * @param userId
    */
@@ -147,11 +151,7 @@ export class TravelsService extends SearchFilterService {
   }
 
   /**
-   * 내가 공유 받은 여행 상세 조회
-   */
-
-  /**
-   * userId로 여행 상세 조회
+   * userId로 생성한 여행 상세 조회
    *
    * @param userId
    */
@@ -171,6 +171,60 @@ export class TravelsService extends SearchFilterService {
     }
 
     return travels;
+  }
+
+  /**
+   * userId와 travelId로 생성한 여행 조회
+   *
+   * @param userId
+   * @param travelId
+   */
+  async findTravelByUIdAndTId(
+    userId: bigint,
+    travelId: bigint,
+  ): Promise<Travels> {
+    const travel = await this.travelsRepository
+      .createQueryBuilder('travels')
+      .innerJoinAndSelect('travels.creator', 'users')
+      .where('users._id = :userId', { userId })
+      .andWhere('travels._id = :travelId', { travelId })
+      .getOne();
+
+    if (!travel) {
+      throw new Error(
+        `No travel found for user with ID "${userId}" and travel ID "${travelId}"`,
+      );
+    }
+
+    return travel;
+  }
+
+  /**
+   * userId로 공유 받은 여행 조회
+   *
+   * @param userId
+   */
+  async findSharedTravelsByMe(userId: bigint): Promise<Travels[]> {
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new Error(`User with ID "${userId}" not found`);
+    }
+
+    return this.travelMembersService.findSharedTravelsByUserId(user);
+  }
+
+  /**
+   * travelId로 공유된 멤버 조회
+   *
+   * @param userId
+   * @param travelId
+   */
+  async findTravelMembersByTravelId(
+    userId: bigint,
+    travelId: bigint,
+  ): Promise<Users[]> {
+    const travel = await this.findTravelByUIdAndTId(userId, travelId);
+    return this.travelMembersService.findTravelMembersByTravelId(travel);
   }
 
   /**

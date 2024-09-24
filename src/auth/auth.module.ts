@@ -12,6 +12,7 @@ import { TravelDetailsModule } from '@/travel/module/travel-details.module';
 import { TravelLocationsModule } from '@/travel/module/travel-locations.module';
 import { CountryStatesModule } from '@/geography/module/country-states.module';
 import { TownCitiesModule } from '@/geography/module/town-cities.module';
+import { TravelMembersModule } from '@/travel/module/travel-members.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TownCitiesModule } from '@/geography/module/town-cities.module';
     TravelsModule,
     TravelDetailsModule,
     TravelLocationsModule,
+    TravelMembersModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

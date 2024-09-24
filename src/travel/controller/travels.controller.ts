@@ -25,6 +25,7 @@ import { getUserId } from '@/auth/utils/auth.util';
 import { AdminGuard } from '@/auth/guards/admin.guard';
 import { UserGuard } from '@/auth/guards/user.guard';
 import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
+import { Users } from '@/user/entities/users.entity';
 
 @Controller({
   path: 'travels',
@@ -96,10 +97,10 @@ export class TravelsController {
   }
 
   @Get('me/get')
-  @ApiOperation({ summary: '나의 여행 조회' })
+  @ApiOperation({ summary: '내가 생성한 여행 조회' })
   @ApiResponse({
     status: 200,
-    description: '나의 여행 조회 성공',
+    description: '내가 생성한 조회 성공',
   })
   async findTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
     const userId = getUserId(req);
@@ -107,14 +108,43 @@ export class TravelsController {
   }
 
   @Get('me/deep')
-  @ApiOperation({ summary: '나의 여행 상세 조회' })
+  @ApiOperation({ summary: '내가 생성한 상세 조회' })
   @ApiResponse({
     status: 200,
-    description: '나의 여행 상세 조회 성공',
+    description: '내가 생성한 상세 조회 성공',
   })
   async findDeepTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
     const userId = getUserId(req);
     return await this.travelsService.findTravelsDeepByUserId(userId);
+  }
+
+  @Get('me/shared')
+  @ApiOperation({ summary: '내가 공유 받은 여행 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '내가 공유 받은 여행 조회 성공',
+  })
+  async findSharedTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
+    const userId = getUserId(req);
+    return await this.travelsService.findSharedTravelsByMe(userId);
+  }
+
+  @Get(':travelId/members')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: 'travelId로 공유된 멤버 조회' })
+  @ApiResponse({
+    status: 200,
+    description: 'travelId로 공유된 멤버 조회 성공',
+  })
+  async findTravelMembersByTravelId(
+    @Req() req: AuthRequest,
+    @Param('travelId', ParseIntPipe) travelId: bigint,
+  ): Promise<Users[]> {
+    const userId = getUserId(req);
+    return await this.travelsService.findTravelMembersByTravelId(
+      userId,
+      travelId,
+    );
   }
 
   @Put()
