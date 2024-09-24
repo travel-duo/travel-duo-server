@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,6 +21,7 @@ import { CreateTravelDetailsDto } from '@/travel/dto/create-travel-details.dto';
 import { UserGuard } from '@/auth/guards/user.guard';
 import { TravelDetails } from '@/travel/entities/travel-details.entity';
 import { AdminGuard } from '@/auth/guards/admin.guard';
+import { UpdateTravelDetailsDto } from '@/travel/dto/update-travel-details.dto';
 
 @Controller({
   path: 'travel-details',
@@ -35,7 +37,7 @@ export class TravelDetailsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '새로운 상세 여행 생성' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'The record has been successfully created.',
   })
   async create(@Body() createTravelDetailDto: CreateTravelDetailsDto) {
@@ -48,7 +50,7 @@ export class TravelDetailsController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: '모든 상세 여행 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '모든 상세 여행 조회 성공',
   })
   async findTravelDetailAll(): Promise<TravelDetails[]> {
@@ -70,7 +72,7 @@ export class TravelDetailsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 상세 여행 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '특정 상세 여행 조회 성공',
   })
   async findOneTravelDetail(
@@ -83,7 +85,7 @@ export class TravelDetailsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 상세 여행 상세 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '특정 상세 여행 상세 조회 성공',
   })
   async findOneTravelDetailDeep(
@@ -98,7 +100,7 @@ export class TravelDetailsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: 'travelId로 상세 여행들 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'travelId로 상세 여행들 조회 성공',
   })
   async findTravelDetailsByTId(
@@ -111,7 +113,7 @@ export class TravelDetailsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: 'travelId로 상세 여행들 상세 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'travelId로 상세 여행들 상세 조회 성공',
   })
   async findTravelDetailsDeepByTId(
@@ -120,19 +122,44 @@ export class TravelDetailsController {
     return await this.travelDetailsService.findTravelDetailsDeepByTId(travelId);
   }
 
-  /**
-   * 특정 여행 삭제
-   */
+  @Put()
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '상세 여행 수정' })
+  @ApiResponse({
+    status: 200,
+    description: '상세 여행 수정 성공',
+  })
+  async updateTravelDetail(
+    @Body() updateTravelDetailsDto: UpdateTravelDetailsDto,
+  ): Promise<TravelDetails> {
+    return await this.travelDetailsService.updateTravelDetail(
+      updateTravelDetailsDto,
+    );
+  }
+
   @Delete(':travelDetailId')
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 상세 여행 삭제' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '특정 상세 여행 삭제 성공',
   })
-  async deleteTravelDetail(
+  async removeTravelDetail(
     @Param('travelDetailId', ParseIntPipe) travelDetailId: bigint,
   ): Promise<boolean> {
-    return await this.travelDetailsService.deleteTravelDetail(travelDetailId);
+    return await this.travelDetailsService.removeTravelDetail(travelDetailId);
+  }
+
+  @Delete('by-travel/:travelId')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: 'travelId로 상세 여행들 삭제' })
+  @ApiResponse({
+    status: 200,
+    description: 'travelId로 상세 여행들 삭제 성공',
+  })
+  async removeTravelDetailsByTId(
+    @Param('travelId', ParseIntPipe) travelId: bigint,
+  ): Promise<boolean> {
+    return await this.travelDetailsService.removeTravelDetailsByTId(travelId);
   }
 }

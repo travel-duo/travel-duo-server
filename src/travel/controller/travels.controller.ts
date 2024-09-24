@@ -40,7 +40,7 @@ export class TravelsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '새로운 여행 생성' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'The record has been successfully created.',
   })
   async create(@Body() createTravelDto: CreateTravelDto) {
@@ -51,7 +51,7 @@ export class TravelsController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: '모든 여행 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '모든 여행 조회 성공',
   })
   async findTravelAll(): Promise<Travels[]> {
@@ -62,7 +62,7 @@ export class TravelsController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: '모든 여행 상세 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '모든 여행 상세 조회 성공',
   })
   async findDeepTravelAll(): Promise<Travels[]> {
@@ -73,7 +73,7 @@ export class TravelsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 여행 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '특정 여행 상세 조회 성공',
   })
   async findTravel(
@@ -86,7 +86,7 @@ export class TravelsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 여행 상세 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '특정 여행 상세 조회 성공',
   })
   async findDeepTravel(
@@ -98,7 +98,7 @@ export class TravelsController {
   @Get('me/get')
   @ApiOperation({ summary: '나의 여행 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '나의 여행 조회 성공',
   })
   async findTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
@@ -109,7 +109,7 @@ export class TravelsController {
   @Get('me/deep')
   @ApiOperation({ summary: '나의 여행 상세 조회' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '나의 여행 상세 조회 성공',
   })
   async findDeepTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
@@ -121,7 +121,7 @@ export class TravelsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '여행 수정' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '여행 수정 성공',
   })
   async updateTravel(
@@ -134,7 +134,7 @@ export class TravelsController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '여행 삭제' })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: '여행 삭제 성공',
   })
   async deleteTravel(

@@ -3,24 +3,27 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Travels } from '@/travel/entities/travels.entity';
 import { Repository } from 'typeorm';
 import { CreateTravelDto } from '@/travel/dto/create-travel.dto';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserService } from '@/user/user.service';
 import { fromZonedTime } from 'date-fns-tz';
 import { Transactional } from 'typeorm-transactional';
-import { TravelDetails } from '@/travel/entities/travel-details.entity';
-import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
+import { TravelDetailsService } from '@/travel/service/travel-details.service';
 
 @Injectable()
 export class TravelsService extends SearchFilterService {
   constructor(
     @InjectRepository(Travels)
     private travelsRepository: Repository<Travels>,
-    @InjectRepository(TravelDetails)
-    private travelDetailsRepository: Repository<TravelDetails>,
-    @InjectRepository(TravelLocations)
-    private travelLocationsRepository: Repository<TravelLocations>,
     private userService: UserService,
+    @Inject(forwardRef(() => TravelDetailsService))
+    private travelDetailsService: TravelDetailsService,
   ) {
     super();
   }
@@ -72,19 +75,11 @@ export class TravelsService extends SearchFilterService {
   async findAllTravelDeep(): Promise<Travels[]> {
     const travels = await this.travelsRepository
       .createQueryBuilder('travels')
-      .innerJoin('travels.creator', 'users')
-      .leftJoin('travels.travelDetails', 'travelDetails')
-      .leftJoin('travelDetails.locations', 'travelLocations')
-      .leftJoin('travelLocations.townCities', 'townCities')
-      .leftJoin('townCities.countryState', 'countryState')
-      .select([
-        'users',
-        'travels',
-        'travelDetails',
-        'travelLocations',
-        'townCities',
-        'countryState',
-      ])
+      .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
+      .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
+      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .getMany();
 
     if (!travels.length) {
@@ -117,19 +112,11 @@ export class TravelsService extends SearchFilterService {
   async findTravelDeep(id: bigint): Promise<Travels> {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
-      .innerJoin('travels.creator', 'users')
-      .leftJoin('travels.travelDetails', 'travelDetails')
-      .leftJoin('travelDetails.locations', 'travelLocations')
-      .leftJoin('travelLocations.townCities', 'townCities')
-      .leftJoin('townCities.countryState', 'countryState')
-      .select([
-        'users',
-        'travels',
-        'travelDetails',
-        'travelLocations',
-        'townCities',
-        'countryState',
-      ])
+      .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
+      .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
+      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('travels._id = :id', { id })
       .getOne();
 
@@ -148,7 +135,7 @@ export class TravelsService extends SearchFilterService {
   async findTravelsByUserId(userId: bigint): Promise<Travels[]> {
     const travels = await this.travelsRepository
       .createQueryBuilder('travels')
-      .innerJoin('travels.creator', 'users')
+      .innerJoinAndSelect('travels.creator', 'users')
       .where('users._id = :userId', { userId })
       .getMany();
 
@@ -160,6 +147,10 @@ export class TravelsService extends SearchFilterService {
   }
 
   /**
+   * 내가 공유 받은 여행 상세 조회
+   */
+
+  /**
    * userId로 여행 상세 조회
    *
    * @param userId
@@ -167,19 +158,11 @@ export class TravelsService extends SearchFilterService {
   async findTravelsDeepByUserId(userId: bigint): Promise<Travels[]> {
     const travels = await this.travelsRepository
       .createQueryBuilder('travels')
-      .innerJoin('travels.creator', 'users')
-      .leftJoin('travels.travelDetails', 'travelDetails')
-      .leftJoin('travelDetails.locations', 'travelLocations')
-      .leftJoin('travelLocations.townCities', 'townCities')
-      .leftJoin('townCities.countryState', 'countryState')
-      .select([
-        'users',
-        'travels',
-        'travelDetails',
-        'travelLocations',
-        'townCities',
-        'countryState',
-      ])
+      .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
+      .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
+      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('users._id = :userId', { userId })
       .getMany();
 
@@ -219,40 +202,18 @@ export class TravelsService extends SearchFilterService {
   @Transactional()
   async deleteTravel(id: bigint): Promise<boolean> {
     try {
-      // 여행 조회
       const travel = await this.findTravelDeep(id);
-
-      if (!travel) {
-        throw new NotFoundException(`Travel with id ${id} not found`);
-      }
-
-      // 여행 상세 조회
-      const travelDetails = await this.travelDetailsRepository.find({
-        where: { travel: travel },
-      });
-
-      // 여행 상세가 존재할 경우
-      if (travelDetails.length > 0) {
-        for (const travelDetail of travelDetails) {
-          // 여행 장소 조회
-          const travelLocations = await this.travelLocationsRepository.find({
-            where: { travelDetails: travelDetail },
-          });
-
-          // 여행 장소가 존재할 경우
-          if (travelLocations.length > 0) {
-            for (const travelLocation of travelLocations) {
-              // 여행 장소 삭제
-              await this.travelLocationsRepository.remove(travelLocation);
-            }
-          }
-          // 여행 상세 삭제
-          await this.travelDetailsRepository.remove(travelDetail);
+      if (travel.travelDetails.length) {
+        const isRemoveTravelDetails =
+          await this.travelDetailsService.removeTravelDetailsByTId(travel._id);
+        if (!isRemoveTravelDetails) {
+          throw new Error(
+            `Failed to delete travel details with travel ID "${id}"`,
+          );
         }
       }
-      // 여행 삭제
-      await this.travelsRepository.remove(travel);
 
+      await this.travelsRepository.remove(travel);
       return true;
     } catch (error) {
       this.logger.error(

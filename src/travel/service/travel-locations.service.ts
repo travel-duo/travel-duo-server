@@ -1,5 +1,5 @@
 import { SearchFilterService } from '@/common/search-filter.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +15,7 @@ export class TravelLocationsService extends SearchFilterService {
   constructor(
     @InjectRepository(TravelLocations)
     private travelLocationsRepository: Repository<TravelLocations>,
+    @Inject(forwardRef(() => TravelDetailsService))
     private travelDetailsService: TravelDetailsService,
     private townCitiesService: TownCitiesService,
   ) {
@@ -207,13 +208,6 @@ export class TravelLocationsService extends SearchFilterService {
   async removeTravelLocationsByTDId(travelDetailId: bigint): Promise<boolean> {
     try {
       const locations = await this.findTravelLocationsByTDId(travelDetailId);
-
-      if (!locations.length) {
-        throw new Error(
-          `TravelLocations with travelDetailId ${travelDetailId} not found`,
-        );
-      }
-
       await this.travelLocationsRepository.remove(locations);
       return true;
     } catch (e) {
