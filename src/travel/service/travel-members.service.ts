@@ -102,16 +102,21 @@ export class TravelMembersService extends SearchFilterService {
   /**
    * 특정 멤버를 특정 여행 공유 해제
    *
-   * @param travelId
+   * @param travelCreatorId
    * @param userId
+   * @param travelId
    */
   @Transactional()
-  async removeTravelMember(userId: bigint, travelId: bigint): Promise<boolean> {
+  async removeTravelMember(
+    travelCreatorId: bigint,
+    userId: bigint,
+    travelId: bigint,
+  ): Promise<boolean> {
     try {
       const user = await this.userService.findOne(userId);
 
       const travel = await this.travelService.findTravelByUIdAndTId(
-        userId,
+        travelCreatorId,
         travelId,
       );
 
@@ -138,7 +143,7 @@ export class TravelMembersService extends SearchFilterService {
    * @param travel
    */
   @Transactional()
-  async removeTravelMembersByTId(travel: Travels): Promise<boolean> {
+  async removeTravelMembersByT(travel: Travels): Promise<boolean> {
     try {
       await this.travelMembersRepository.delete({ travel });
       return true;
@@ -156,7 +161,7 @@ export class TravelMembersService extends SearchFilterService {
    * @param user
    */
   @Transactional()
-  async removeTravelMembersByUId(user: Users): Promise<boolean> {
+  async removeTravelMembersByU(user: Users): Promise<boolean> {
     try {
       await this.travelMembersRepository.delete({ user });
       return true;

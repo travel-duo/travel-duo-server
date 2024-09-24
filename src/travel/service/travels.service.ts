@@ -260,7 +260,7 @@ export class TravelsService extends SearchFilterService {
 
       // 공유된 멤버들 해제
       const isRemoveTravelMembers =
-        this.travelMembersService.removeTravelMembersByTId(travel);
+        this.travelMembersService.removeTravelMembersByT(travel);
       if (!isRemoveTravelMembers) {
         throw new Error(
           `Failed to delete travel members with travel ID "${travelId}"`,
