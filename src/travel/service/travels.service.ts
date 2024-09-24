@@ -15,6 +15,8 @@ import { fromZonedTime } from 'date-fns-tz';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
+import { TravelMembersService } from '@/travel/service/travel-members.service';
+import { Users } from '@/user/entities/users.entity';
 
 @Injectable()
 export class TravelsService extends SearchFilterService {
@@ -24,6 +26,8 @@ export class TravelsService extends SearchFilterService {
     private userService: UserService,
     @Inject(forwardRef(() => TravelDetailsService))
     private travelDetailsService: TravelDetailsService,
+    @Inject(forwardRef(() => TravelMembersService))
+    private travelMembersService: TravelMembersService,
   ) {
     super();
   }
@@ -92,13 +96,13 @@ export class TravelsService extends SearchFilterService {
   /**
    * 특정 여행 조회
    *
-   * @param id
+   * @param travelId
    */
-  async findTravel(id: bigint): Promise<Travels> {
-    const travel = await this.travelsRepository.findOneBy({ _id: id });
+  async findTravel(travelId: bigint): Promise<Travels> {
+    const travel = await this.travelsRepository.findOneBy({ _id: travelId });
 
     if (!travel) {
-      throw new Error(`Travel with ID "${id}" not found`);
+      throw new Error(`Travel with ID "${travelId}" not found`);
     }
 
     return travel;
@@ -107,9 +111,9 @@ export class TravelsService extends SearchFilterService {
   /**
    * 특정 여행 상세 조회
    *
-   * @param id
+   * @param travelId
    */
-  async findTravelDeep(id: bigint): Promise<Travels> {
+  async findTravelDeep(travelId: bigint): Promise<Travels> {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
@@ -117,18 +121,18 @@ export class TravelsService extends SearchFilterService {
       .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
       .leftJoinAndSelect('travelLocations.townCities', 'townCities')
       .leftJoinAndSelect('townCities.countryState', 'countryState')
-      .where('travels._id = :id', { id })
+      .where('travels._id = :id', { id: travelId })
       .getOne();
 
     if (!travel) {
-      throw new Error(`Travel with ID "${id}" not found`);
+      throw new Error(`Travel with ID "${travelId}" not found`);
     }
 
     return travel;
   }
 
   /**
-   * userId로 여행 조회
+   * userId로 생성한 여행 조회
    *
    * @param userId
    */
@@ -147,11 +151,7 @@ export class TravelsService extends SearchFilterService {
   }
 
   /**
-   * 내가 공유 받은 여행 상세 조회
-   */
-
-  /**
-   * userId로 여행 상세 조회
+   * userId로 생성한 여행 상세 조회
    *
    * @param userId
    */
@@ -171,6 +171,60 @@ export class TravelsService extends SearchFilterService {
     }
 
     return travels;
+  }
+
+  /**
+   * userId와 travelId로 생성한 여행 조회
+   *
+   * @param userId
+   * @param travelId
+   */
+  async findTravelByUIdAndTId(
+    userId: bigint,
+    travelId: bigint,
+  ): Promise<Travels> {
+    const travel = await this.travelsRepository
+      .createQueryBuilder('travels')
+      .innerJoinAndSelect('travels.creator', 'users')
+      .where('users._id = :userId', { userId })
+      .andWhere('travels._id = :travelId', { travelId })
+      .getOne();
+
+    if (!travel) {
+      throw new Error(
+        `No travel found for user with ID "${userId}" and travel ID "${travelId}"`,
+      );
+    }
+
+    return travel;
+  }
+
+  /**
+   * userId로 공유 받은 여행 조회
+   *
+   * @param userId
+   */
+  async findSharedTravelsByMe(userId: bigint): Promise<Travels[]> {
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new Error(`User with ID "${userId}" not found`);
+    }
+
+    return this.travelMembersService.findSharedTravelsByUserId(user);
+  }
+
+  /**
+   * travelId로 공유된 멤버 조회
+   *
+   * @param userId
+   * @param travelId
+   */
+  async findTravelMembersByTravelId(
+    userId: bigint,
+    travelId: bigint,
+  ): Promise<Users[]> {
+    const travel = await this.findTravelByUIdAndTId(userId, travelId);
+    return this.travelMembersService.findTravelMembersByTravelId(travel);
   }
 
   /**
@@ -197,18 +251,28 @@ export class TravelsService extends SearchFilterService {
   /**
    * 여행 삭제
    *
-   * @param id
+   * @param travelId
    */
   @Transactional()
-  async deleteTravel(id: bigint): Promise<boolean> {
+  async deleteTravel(travelId: bigint): Promise<boolean> {
     try {
-      const travel = await this.findTravelDeep(id);
+      const travel = await this.findTravelDeep(travelId);
+
+      // 공유된 멤버들 해제
+      const isRemoveTravelMembers =
+        this.travelMembersService.removeTravelMembersByT(travel);
+      if (!isRemoveTravelMembers) {
+        throw new Error(
+          `Failed to delete travel members with travel ID "${travelId}"`,
+        );
+      }
+
       if (travel.travelDetails.length) {
         const isRemoveTravelDetails =
           await this.travelDetailsService.removeTravelDetailsByTId(travel._id);
         if (!isRemoveTravelDetails) {
           throw new Error(
-            `Failed to delete travel details with travel ID "${id}"`,
+            `Failed to delete travel details with travel ID "${travelId}"`,
           );
         }
       }
@@ -217,7 +281,7 @@ export class TravelsService extends SearchFilterService {
       return true;
     } catch (error) {
       this.logger.error(
-        `Failed to delete travel with ID "${id}": ${error.message}`,
+        `Failed to delete travel with ID "${travelId}": ${error.message}`,
       );
       return false;
     }
