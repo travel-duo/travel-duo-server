@@ -2,12 +2,13 @@ import { SearchFilterService } from '@/common/search-filter.service';
 import { Repository } from 'typeorm';
 import { TravelMembers } from '@/travel/entities/travel-members.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateTravelMembersDto } from '@/travel/dto/create-travel-members.dto';
 import { TravelsService } from '@/travel/service/travels.service';
 import { UserService } from '@/user/user.service';
 import { Users } from '@/user/entities/users.entity';
 import { Travels } from '@/travel/entities/travels.entity';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class TravelMembersService extends SearchFilterService {
@@ -21,12 +22,15 @@ export class TravelMembersService extends SearchFilterService {
     super();
   }
 
+  private readonly logger = new Logger(TravelsService.name);
+
   /**
    * 여행 공유하기
    *
    * @param travelCreatorId
    * @param createTravelMemberDto
    */
+  @Transactional()
   async createTravelMember(
     travelCreatorId: bigint,
     createTravelMemberDto: CreateTravelMembersDto,
@@ -62,7 +66,7 @@ export class TravelMembersService extends SearchFilterService {
   }
 
   /**
-   * user가 공유받은 travel들 조회
+   * 특정 멤버가 공유받은 여행들 조회
    *
    * @param user
    */
@@ -93,5 +97,74 @@ export class TravelMembersService extends SearchFilterService {
     }
 
     return travelMembers.map((member) => member.user);
+  }
+
+  /**
+   * 특정 멤버를 특정 여행 공유 해제
+   *
+   * @param travelId
+   * @param userId
+   */
+  @Transactional()
+  async removeTravelMember(userId: bigint, travelId: bigint): Promise<boolean> {
+    try {
+      const user = await this.userService.findOne(userId);
+
+      const travel = await this.travelService.findTravelByUIdAndTId(
+        userId,
+        travelId,
+      );
+
+      const member = await this.travelMembersRepository.findOne({
+        where: { travel, user },
+      });
+
+      if (!member) {
+        throw new Error('Member not found');
+      }
+
+      await this.travelMembersRepository.remove(member);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete TravelMembers with travelId ${travelId} and userId ${userId}: ${error.message}`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * 특정 여행에 공유된 멤버들 해제
+   *
+   * @param travel
+   */
+  @Transactional()
+  async removeTravelMembersByTId(travel: Travels): Promise<boolean> {
+    try {
+      await this.travelMembersRepository.delete({ travel });
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete TravelMembers with travelId ${travel}: ${error.message}`,
+      );
+      return false;
+    }
+  }
+
+  /**
+   * 특정 멤버를 모든 여행 공유 해제
+   *
+   * @param user
+   */
+  @Transactional()
+  async removeTravelMembersByUId(user: Users): Promise<boolean> {
+    try {
+      await this.travelMembersRepository.delete({ user });
+      return true;
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete TravelMembers with userId ${user}: ${error.message}`,
+      );
+      return false;
+    }
   }
 }

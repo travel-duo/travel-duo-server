@@ -96,13 +96,13 @@ export class TravelsService extends SearchFilterService {
   /**
    * 특정 여행 조회
    *
-   * @param id
+   * @param travelId
    */
-  async findTravel(id: bigint): Promise<Travels> {
-    const travel = await this.travelsRepository.findOneBy({ _id: id });
+  async findTravel(travelId: bigint): Promise<Travels> {
+    const travel = await this.travelsRepository.findOneBy({ _id: travelId });
 
     if (!travel) {
-      throw new Error(`Travel with ID "${id}" not found`);
+      throw new Error(`Travel with ID "${travelId}" not found`);
     }
 
     return travel;
@@ -111,9 +111,9 @@ export class TravelsService extends SearchFilterService {
   /**
    * 특정 여행 상세 조회
    *
-   * @param id
+   * @param travelId
    */
-  async findTravelDeep(id: bigint): Promise<Travels> {
+  async findTravelDeep(travelId: bigint): Promise<Travels> {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
@@ -121,11 +121,11 @@ export class TravelsService extends SearchFilterService {
       .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
       .leftJoinAndSelect('travelLocations.townCities', 'townCities')
       .leftJoinAndSelect('townCities.countryState', 'countryState')
-      .where('travels._id = :id', { id })
+      .where('travels._id = :id', { id: travelId })
       .getOne();
 
     if (!travel) {
-      throw new Error(`Travel with ID "${id}" not found`);
+      throw new Error(`Travel with ID "${travelId}" not found`);
     }
 
     return travel;
@@ -251,18 +251,28 @@ export class TravelsService extends SearchFilterService {
   /**
    * 여행 삭제
    *
-   * @param id
+   * @param travelId
    */
   @Transactional()
-  async deleteTravel(id: bigint): Promise<boolean> {
+  async deleteTravel(travelId: bigint): Promise<boolean> {
     try {
-      const travel = await this.findTravelDeep(id);
+      const travel = await this.findTravelDeep(travelId);
+
+      // 공유된 멤버들 해제
+      const isRemoveTravelMembers =
+        this.travelMembersService.removeTravelMembersByTId(travel);
+      if (!isRemoveTravelMembers) {
+        throw new Error(
+          `Failed to delete travel members with travel ID "${travelId}"`,
+        );
+      }
+
       if (travel.travelDetails.length) {
         const isRemoveTravelDetails =
           await this.travelDetailsService.removeTravelDetailsByTId(travel._id);
         if (!isRemoveTravelDetails) {
           throw new Error(
-            `Failed to delete travel details with travel ID "${id}"`,
+            `Failed to delete travel details with travel ID "${travelId}"`,
           );
         }
       }
@@ -271,7 +281,7 @@ export class TravelsService extends SearchFilterService {
       return true;
     } catch (error) {
       this.logger.error(
-        `Failed to delete travel with ID "${id}": ${error.message}`,
+        `Failed to delete travel with ID "${travelId}": ${error.message}`,
       );
       return false;
     }
