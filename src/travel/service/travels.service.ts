@@ -11,7 +11,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from '@/user/user.service';
-import { fromZonedTime } from 'date-fns-tz';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
@@ -48,12 +47,10 @@ export class TravelsService extends SearchFilterService {
       throw new Error(`User with id ${creatorId} not found`);
     }
 
-    const zoneStartDate = fromZonedTime(startDate, 'Asia/Seoul');
-    const zoneEndDate = fromZonedTime(endDate, 'Asia/Seoul');
     const travel = this.travelsRepository.create({
       ...travelData,
-      startDate: zoneStartDate,
-      endDate: zoneEndDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       creator,
     });
 
@@ -234,6 +231,7 @@ export class TravelsService extends SearchFilterService {
    */
   @Transactional()
   async updateTravel(updateTravelDto: UpdateTravelDto): Promise<Travels> {
+    const { startDate, endDate, ...travelData } = updateTravelDto;
     const travel = await this.findTravelDeep(updateTravelDto.id);
 
     if (!travel) {
@@ -242,10 +240,13 @@ export class TravelsService extends SearchFilterService {
       );
     }
 
-    return await this.travelsRepository.save({
-      ...travel,
-      ...updateTravelDto,
+    Object.assign(travel, {
+      ...travelData,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
     });
+
+    return await this.travelsRepository.save(travel);
   }
 
   /**

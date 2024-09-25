@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { LocationType } from '@/travel/enums/location-type';
 import {
-  IsDateString,
   IsInt,
+  IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
@@ -79,19 +79,19 @@ export class UpdateTravelLocationDto {
   })
   orderIndex: number;
 
-  @IsDateString()
+  @IsISO8601()
   @ApiProperty({
-    example: '2024-02-01T00:00:00',
-    description: 'start date of the travel detail',
+    example: '2024-02-01T00:00:00Z',
+    description: 'start date of the travel in ISO8601 format',
   })
-  startDate: Date;
+  startDate: string;
 
-  @IsDateString()
+  @IsISO8601()
   @ApiProperty({
-    example: '2024-02-02T00:00:00',
-    description: 'end date of the travel detail',
+    example: '2024-02-02T00:00:00Z',
+    description: 'end date of the travel in ISO8601 format',
   })
-  endDate: Date;
+  endDate: string;
 
   @IsInt()
   @ApiProperty({

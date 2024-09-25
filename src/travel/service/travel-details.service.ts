@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { TravelDetails } from '@/travel/entities/travel-details.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTravelDetailsDto } from '@/travel/dto/create-travel-details.dto';
-import { toZonedTime } from 'date-fns-tz';
 import { TravelsService } from '@/travel/service/travels.service';
 import { Transactional } from 'typeorm-transactional';
 import { UpdateTravelDetailsDto } from '@/travel/dto/update-travel-details.dto';
@@ -38,14 +37,10 @@ export class TravelDetailsService extends SearchFilterService {
       createTravelDetailDto;
 
     const travel = await this.travelsService.findTravelDeep(travelId);
-
-    const zoneStartDate = toZonedTime(startDate, 'Asia/Seoul');
-    const zoneEndDate = toZonedTime(endDate, 'Asia/Seoul');
-
     const travelDetail = this.travelDetailRepository.create({
       ...travelDetailData,
-      startDate: zoneStartDate,
-      endDate: zoneEndDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       travel,
     });
     return await this.travelDetailRepository.save(travelDetail);
@@ -176,21 +171,13 @@ export class TravelDetailsService extends SearchFilterService {
 
     const travelDetail = await this.findOneTravelDetailDeep(id);
 
-    const zoneStartDate = toZonedTime(startDate, 'Asia/Seoul');
-    const zoneEndDate = toZonedTime(endDate, 'Asia/Seoul');
-
     Object.assign(travelDetail, {
       ...travelDetailData,
-      startDate: zoneStartDate,
-      endDate: zoneEndDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
     });
-    try {
-      return await this.travelDetailRepository.save(travelDetail);
-    } catch (error) {
-      throw new Error(
-        `Failed to update TravelDetails with id ${id}: ${error.message}`,
-      );
-    }
+
+    return await this.travelDetailRepository.save(travelDetail);
   }
 
   /**

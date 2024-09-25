@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TravelLocations } from '@/travel/entities/travel-locations.entity';
 import { Repository } from 'typeorm';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
-import { fromZonedTime } from 'date-fns-tz';
 import { CreateTravelLocationsDto } from '@/travel/dto/create-travel-locations.dto';
 import { TownCitiesService } from '@/geography/service/town-cities.service';
 import { Transactional } from 'typeorm-transactional';
@@ -26,6 +25,7 @@ export class TravelLocationsService extends SearchFilterService {
 
   /**
    * 여행지 장소 생성
+   *
    * @param createTravelLocationsDto
    */
   @Transactional()
@@ -46,13 +46,10 @@ export class TravelLocationsService extends SearchFilterService {
       throw new Error(`TownCity with id ${townCityId} not found`);
     }
 
-    const zoneStartDate = fromZonedTime(startDate, 'Asia/Seoul');
-    const zoneEndDate = fromZonedTime(endDate, 'Asia/Seoul');
-
     const location = this.travelLocationsRepository.create({
       ...locationData,
-      startDate: zoneStartDate,
-      endDate: zoneEndDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       travelDetails,
       townCities,
     });
@@ -155,13 +152,10 @@ export class TravelLocationsService extends SearchFilterService {
       throw new Error(`TownCity with id ${townCityId} not found`);
     }
 
-    const zoneStartDate = fromZonedTime(startDate, 'Asia/Seoul');
-    const zoneEndDate = fromZonedTime(endDate, 'Asia/Seoul');
-
     Object.assign(location, {
       ...locationData,
-      startDate: zoneStartDate,
-      endDate: zoneEndDate,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
       travelDetails: travelDetail,
       townCities: townCity,
     });
