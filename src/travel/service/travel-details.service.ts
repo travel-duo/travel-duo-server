@@ -216,7 +216,7 @@ export class TravelDetailsService extends SearchFilterService {
   @Transactional()
   async removeTravelDetailsByTId(travelId: bigint): Promise<boolean> {
     try {
-      const travelDetails = await this.findTravelDetailsByTId(travelId);
+      const travelDetails = await this.findTravelDetailsDeepByTId(travelId);
 
       for (const travelDetail of travelDetails) {
         if (travelDetail.locations.length) {
