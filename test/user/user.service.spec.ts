@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '@/user/user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from '@/user/entities/users.entity';
+import { User } from '@/user/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@/common/database.module';
 import { Classroom } from '@/classroom/entities/classroom.entity';
@@ -22,7 +22,7 @@ describe('UserService', () => {
         }),
         DatabaseModule,
         TypeOrmModule.forFeature([
-          Users,
+          User,
           Classroom,
           ClassroomStudent,
           ClassroomManager,

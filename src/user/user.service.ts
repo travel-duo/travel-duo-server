@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Users } from './entities/users.entity';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '@/common/dto/pagination.dto';
@@ -14,13 +14,13 @@ import { snakeCase as _snakeCase } from 'lodash';
 @Injectable()
 export class UserService extends SearchFilterService {
   constructor(
-    @InjectRepository(Users)
-    private usersRepository: Repository<Users>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {
     super();
   }
 
-  async create(createUserDto: CreateUserDto): Promise<Users> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.usersRepository.create(createUserDto);
     return await this.usersRepository.save(user);
   }
@@ -29,7 +29,7 @@ export class UserService extends SearchFilterService {
     filter: FilterExpression,
     paginationDto: PaginationDto,
     sortDto: SortDto,
-  ): Promise<SearchResponseDto<Users>> {
+  ): Promise<SearchResponseDto<User>> {
     const entityName = this.usersRepository.metadata.tableName;
     const queryBuilder = this.usersRepository.createQueryBuilder(entityName);
     return this.searchAndPaginateResults(
@@ -42,7 +42,7 @@ export class UserService extends SearchFilterService {
     );
   }
 
-  async findOne(id: bigint): Promise<Users> {
+  async findOne(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { _id: id } });
     if (!user) {
       throw new NotFoundException(`User with ID "${id}" not found`);
@@ -50,19 +50,19 @@ export class UserService extends SearchFilterService {
     return user;
   }
 
-  async findOneByEmail(email: string): Promise<Users | undefined> {
+  async findOneByEmail(email: string): Promise<User | undefined> {
     const user = await this.usersRepository.findOne({ where: { email } });
 
     return user;
   }
 
-  async update(id: bigint, updateUserDto: UpdateUserDto): Promise<Users> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
     Object.assign(user, updateUserDto);
     return await this.usersRepository.save(user);
   }
 
-  async remove(id: bigint): Promise<void> {
+  async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
     await this.usersRepository.remove(user);
   }

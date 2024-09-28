@@ -1,16 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Users } from '@/user/entities/users.entity';
-import { Travels } from '@/travel/entities/travels.entity';
-import { TravelMedias } from '@/travel/entities/travel-medias.entity';
-import { TravelMembers } from '@/travel/entities/travel-members.entity';
-import { Badges } from '@/badge/entities/badges.entity';
-import { TravelDetails } from '@/travel/entities/travel-details.entity';
-import { TravelLocations } from '@/travel/entities/travel-locations.entity';
-import { TownCities } from '@/geography/entities/town-cities.entity';
-import { CountryStates } from '@/geography/entities/country-states.entity';
-
+import { User } from '@/user/entities/user.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Module({
@@ -27,17 +18,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [
-          Users,
-          Travels,
-          TravelMedias,
-          TravelMembers,
-          Badges,
-          TravelDetails,
-          TravelLocations,
-          TownCities,
-          CountryStates,
-        ],
+        entities: [User],
         synchronize: false, //configService.get<boolean>('DB_SYNCHRONIZE', false),
         namingStrategy: new SnakeNamingStrategy(),
         extra: {

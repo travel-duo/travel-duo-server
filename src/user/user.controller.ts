@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Users } from './entities/users.entity';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import {
@@ -50,7 +50,7 @@ export class UserController {
     status: 201,
     description: 'The record has been successfully created.',
   })
-  async create(@Body() createUserDto: CreateUserDto): Promise<Users> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.usersService.create(createUserDto);
   }
 
@@ -63,7 +63,7 @@ export class UserController {
     @Query() searchFilterDto: SearchFilterV2Dto,
     @Query() paginationDto: PaginationDto,
     @Query() sortDto: SortDto,
-  ): Promise<SearchResponseDto<Users>> {
+  ): Promise<SearchResponseDto<User>> {
     const filter: FilterExpression = JSON.parse(
       decodeURIComponent(searchFilterDto.filter),
     );
@@ -73,7 +73,7 @@ export class UserController {
   @Get('email/:email')
   @UseGuards(AdminTeacherGuard)
   @ApiOperation({ summary: '이메일로 특정 사용자 조회' })
-  async findOneByEmail(@Param('email') email: string): Promise<Users> {
+  async findOneByEmail(@Param('email') email: string): Promise<User> {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
       throw new NotFoundException(`User with email "${email}" not found`);
@@ -83,7 +83,7 @@ export class UserController {
 
   @Get('me')
   @ApiOperation({ summary: '내 정보 조회' })
-  async findMe(@Req() req: AuthRequest): Promise<Users> {
+  async findMe(@Req() req: AuthRequest): Promise<User> {
     const userId = getUserId(req);
     return await this.usersService.findOne(userId);
   }
@@ -91,7 +91,7 @@ export class UserController {
   @Get(':userId')
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'ID로 특정 사용자 조회' })
-  async findOne(@Param('userId', ParseIntPipe) userId: bigint): Promise<Users> {
+  async findOne(@Param('userId', ParseIntPipe) userId: number): Promise<User> {
     const user = await this.usersService.findOne(userId);
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
@@ -103,9 +103,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'ID로 사용자 정보 업데이트' })
   async update(
-    @Param('userId', ParseIntPipe) userId: bigint,
+    @Param('userId', ParseIntPipe) userId: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<Users> {
+  ): Promise<User> {
     const user = await this.usersService.findOne(userId);
     if (!user) {
       throw new NotFoundException(`User with ID "${userId}" not found`);
@@ -116,7 +116,7 @@ export class UserController {
   @Delete(':userId')
   @ApiOperation({ summary: 'ID로 사용자 삭제' })
   @UseGuards(JwtAuthGuard)
-  async remove(@Param('userId', ParseIntPipe) userId: bigint): Promise<void> {
+  async remove(@Param('userId', ParseIntPipe) userId: number): Promise<void> {
     const user = await this.usersService.findOne(userId);
 
     if (!user) {
