@@ -63,6 +63,7 @@ async function bootstrap() {
     .addTag('content')
     .addTag('video')
     .addTag('textbook')
+    .addTag('weather', 'Weather forecast API')
     .addBearerAuth(
       {
         type: 'http',
