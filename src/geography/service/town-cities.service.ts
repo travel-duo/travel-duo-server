@@ -21,6 +21,7 @@ export class TownCitiesService extends SearchFilterService {
 
   /**
    * 시,군,구를 생성
+   *
    * @param createTownCityDto
    */
   @Transactional()
@@ -44,6 +45,40 @@ export class TownCitiesService extends SearchFilterService {
     });
 
     return await this.townCitiesRepository.save(newCity);
+  }
+
+  /**
+   * 시,군,구를 bulk로 생성
+   *
+   * @param createTownCityDtos
+   */
+  @Transactional()
+  async createTownCitiesBulk(
+    createTownCityDtos: CreateTownCityDto[],
+  ): Promise<TownCities[]> {
+    const newCities: TownCities[] = [];
+
+    for (const createTownCityDto of createTownCityDtos) {
+      const { countryStateId, ...townCityData } = createTownCityDto;
+      const countryState = await this.countryStatesRepository.findOne({
+        where: { _id: countryStateId },
+      });
+
+      if (!countryState) {
+        throw new NotFoundException(
+          `CountryState with id ${countryStateId} not found`,
+        );
+      }
+
+      const newCity = this.townCitiesRepository.create({
+        ...townCityData,
+        countryState,
+      });
+
+      newCities.push(newCity);
+    }
+
+    return await this.townCitiesRepository.save(newCities);
   }
 
   /**
