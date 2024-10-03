@@ -77,6 +77,8 @@ export class TravelsService extends SearchFilterService {
     const travels = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.travelMembers', 'travelMembers')
+      .leftJoinAndSelect('travelMembers.user', 'members')
       .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
       .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
       .leftJoinAndSelect('travelLocations.townCities', 'townCities')
@@ -207,7 +209,7 @@ export class TravelsService extends SearchFilterService {
       throw new Error(`User with ID "${userId}" not found`);
     }
 
-    return this.travelMembersService.findSharedTravelsByUserId(user);
+    return this.travelMembersService.findSharedTravelsByUser(user);
   }
 
   /**
