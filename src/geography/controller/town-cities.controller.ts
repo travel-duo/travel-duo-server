@@ -24,7 +24,7 @@ import { UserGuard } from '@/auth/guards/user.guard';
 import { AuthRequest } from '@/auth/interfaces/auth-request.interface';
 import { getUserId } from '@/auth/utils/auth.util';
 import { TownCitiesService } from '@/geography/service/town-cities.service';
-import {UpdateTownCityDto} from "@/geography/dto/update-town-city.dto";
+import { UpdateTownCityDto } from '@/geography/dto/update-town-city.dto';
 
 @Controller({
   path: 'town-cities',
@@ -48,6 +48,22 @@ export class TownCitiesController {
     createTownCityDto: CreateTownCityDto,
   ): Promise<TownCities> {
     return await this.townCitiesService.createTownCity(createTownCityDto);
+  }
+
+  @Post('bulk')
+  @UseGuards(AdminGuard)
+  @ApiOperation({ summary: '시,군,구를 bulk로 생성' })
+  @ApiResponse({
+    status: 201,
+    description: 'The records have been successfully created.',
+  })
+  async createTownCitiesBulk(
+    @Body()
+    createTownCityDtos: CreateTownCityDto[],
+  ): Promise<TownCities[]> {
+    return await this.townCitiesService.createTownCitiesBulk(
+      createTownCityDtos,
+    );
   }
 
   @Get()
