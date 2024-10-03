@@ -70,10 +70,12 @@ export class TravelMembersService extends SearchFilterService {
    *
    * @param user
    */
-  async findSharedTravelsByUserId(user: Users): Promise<Travels[]> {
-    const travelMembers = await this.travelMembersRepository.find({
-      where: { user },
-    });
+  async findSharedTravelsByUser(user: Users): Promise<Travels[]> {
+    const travelMembers = await this.travelMembersRepository
+      .createQueryBuilder('travelMembers')
+      .innerJoinAndSelect('travelMembers.travel', 'travels')
+      .where('travelMembers.user_id = :userId', { userId: user._id })
+      .getMany();
 
     if (!travelMembers.length) {
       return [];

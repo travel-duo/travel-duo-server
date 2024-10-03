@@ -15,6 +15,7 @@ export class TravelMembers {
   _id: bigint;
 
   @ManyToOne(() => Users, (user) => user.travelMembers)
+  @JoinColumn({ name: 'user_id' })
   user: Users;
 
   @CreateDateColumn({ type: 'timestamp' })
