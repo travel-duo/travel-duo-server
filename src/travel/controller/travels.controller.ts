@@ -2,12 +2,14 @@ import { TravelsService } from '@/travel/service/travels.service';
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ import { CreateTravelDto } from '@/travel/dto/create-travel.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -124,9 +127,31 @@ export class TravelsController {
     status: 200,
     description: '내가 공유 받은 여행 조회 성공',
   })
-  async findSharedTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
+  @ApiQuery({
+    name: 'year',
+    required: false,
+    type: Number,
+    description: '조회할 연도 입력(YYYY) 또는 미입력시 전체 조회',
+  })
+  async findSharedTravelsByMe(
+    @Req() req: AuthRequest,
+    @Query('year', new DefaultValuePipe(null))
+    year?: number,
+  ): Promise<Travels[]> {
     const userId = getUserId(req);
-    return await this.travelsService.findSharedTravelsByMe(userId);
+    return await this.travelsService.findSharedTravelsByUser(userId, year);
+  }
+
+  @Get('me/shared/years')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '내가 공유 받은 여행의 연도 리스트 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '내가 공유 받은 여행의 연도 리스트 조회 성공',
+  })
+  async findYearSharedTravelsByMe(@Req() req: AuthRequest): Promise<number[]> {
+    const userId = getUserId(req);
+    return await this.travelsService.findYearSharedTravelsByUser(userId);
   }
 
   @Get(':travelId/members')
