@@ -32,10 +32,8 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'http://localhost:3001',
-      'http://leadwin.iptime.org',
-      'http://leadwin.iptime.org:13001',
-      'https://lms-admin-dev.repeach.kr',
-      'https://lms-video-dev.repeach.kr',
+      'https://scheduling.co.kr',
+      'http://192.168.1.134:3001',
     ], // 클라이언트 도메인
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
