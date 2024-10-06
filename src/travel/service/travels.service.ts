@@ -202,14 +202,32 @@ export class TravelsService extends SearchFilterService {
    * userId로 공유 받은 여행 조회
    *
    * @param userId
+   * @param year
    */
-  async findSharedTravelsByMe(userId: bigint): Promise<Travels[]> {
+  async findSharedTravelsByUser(
+    userId: bigint,
+    year?: number,
+  ): Promise<Travels[]> {
     const user = await this.userService.findOne(userId);
     if (!user) {
       throw new Error(`User with ID "${userId}" not found`);
     }
 
-    return this.travelMembersService.findSharedTravelsByUser(user);
+    return this.travelMembersService.findSharedTravelsByUser(user, year);
+  }
+
+  /**
+   * 특정 멤버가 공유받은 여행들의 연도 리스트 조회
+   *
+   * @param userId
+   */
+  async findYearSharedTravelsByUser(userId: bigint): Promise<number[]> {
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new Error(`User with ID "${userId}" not found`);
+    }
+
+    return this.travelMembersService.findYearSharedTravelsByUser(user);
   }
 
   /**

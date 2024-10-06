@@ -66,22 +66,74 @@ export class TravelMembersService extends SearchFilterService {
   }
 
   /**
-   * 특정 멤버가 공유받은 여행들 조회
+   * 특정 멤버가 공유받은 여행들 간단 조회
+   * 간단 조회는 우선 주석 처리함, 필요하면 다시 사용할것
    *
    * @param user
    */
-  async findSharedTravelsByUser(user: Users): Promise<Travels[]> {
-    const travelMembers = await this.travelMembersRepository
+
+  /**
+   async findSharedTravelsByUser(user: Users): Promise<Travels[]> {
+   const travelMembers = await this.travelMembersRepository
+   .createQueryBuilder('travelMembers')
+   .innerJoinAndSelect('travelMembers.travel', 'travels')
+   .where('travelMembers.user_id = :userId', { userId: user._id })
+   .getMany();
+
+   if (!travelMembers.length) {
+   return [];
+   }
+
+   return travelMembers.map((member) => member.travel);
+   }
+   */
+
+  /**
+   * 특정 멤버가 공유받은 여행 조회
+   *
+   * @param user
+   * @param year 조회할 연도 입력(YYYY) 또는 null 이면 전체 조회
+   */
+  async findSharedTravelsByUser(
+    user: Users,
+    year?: number,
+  ): Promise<Travels[]> {
+    const query = this.travelMembersRepository
       .createQueryBuilder('travelMembers')
       .innerJoinAndSelect('travelMembers.travel', 'travels')
-      .where('travelMembers.user_id = :userId', { userId: user._id })
-      .getMany();
+      .leftJoinAndSelect('travels.travelMembers', 'members')
+      .leftJoinAndSelect('members.user', 'user')
+      .where('travelMembers.user_id = :userId', { userId: user._id });
 
-    if (!travelMembers.length) {
+    if (year !== null) {
+      query.andWhere('EXTRACT(YEAR FROM travels.startDate) = :year', { year });
+    }
+
+    const travels = await query.getMany();
+    return travels.map((member) => member.travel);
+  }
+
+  /**
+   * 특정 멤버가 공유받은 여행들의 연도 리스트 조회
+   *
+   * @param user
+   */
+  async findYearSharedTravelsByUser(user: Users): Promise<number[]> {
+    let years = await this.travelMembersRepository
+      .createQueryBuilder('travelMembers')
+      .innerJoin('travelMembers.travel', 'travels')
+      .where('travelMembers.user_id = :userId', { userId: user._id })
+      .select('EXTRACT(YEAR FROM travels.startDate)', 'year')
+      .groupBy('year')
+      .getRawMany();
+
+    if (!years.length) {
       return [];
     }
 
-    return travelMembers.map((member) => member.travel);
+    years = years.map((year) => parseInt(year.year, 10));
+
+    return years;
   }
 
   /**
