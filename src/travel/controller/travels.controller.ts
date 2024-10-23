@@ -154,6 +154,18 @@ export class TravelsController {
     return await this.travelsService.findYearSharedTravelsByUser(userId);
   }
 
+  @Get('me/created/years')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '내가 생성한 여행의 연도 리스트 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '내가 생성한 여행의 연도 리스트 조회 성공',
+  })
+  async findYearCreatedTravelsByMe(@Req() req: AuthRequest): Promise<number[]> {
+    const userId = getUserId(req);
+    return await this.travelsService.findYearCreatedTravelsByUser(userId);
+  }
+
   @Get(':travelId/members')
   @UseGuards(UserGuard)
   @ApiOperation({ summary: 'travelId로 공유된 멤버 조회' })
@@ -171,7 +183,7 @@ export class TravelsController {
       travelId,
     );
   }
-
+  // TODO: 버그 수정 확인 필요함
   @Put()
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '여행 수정' })
