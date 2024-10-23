@@ -118,6 +118,25 @@ export class TownCitiesService extends SearchFilterService {
   }
 
   /**
+   * 특정 시,군,구 이름으로 조회
+   * @param name
+   */
+  async findTownCitiesByName(name: string): Promise<TownCities[]> {
+    const townCities = await this.townCitiesRepository
+      .createQueryBuilder('townCities')
+      .where('townCities.name = :name', { name })
+      .innerJoin('townCities.countryState', 'countryState')
+      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .getMany();
+
+    if (!townCities) {
+      throw new NotFoundException(`TownCity with name "${name}" not found`);
+    }
+
+    return townCities;
+  }
+
+  /**
    * 내가 방문한 특정 시,군,구 들을 조회
    * @param userId
    */

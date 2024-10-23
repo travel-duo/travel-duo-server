@@ -72,6 +72,19 @@ export class CountryStatesController {
     return await this.countryStatesService.findOneCountryState(countryStateId);
   }
 
+  @Get('name/:name')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '특정 행정 구역 이름으로 조회' })
+  @ApiResponse({
+    status: 201,
+    description: 'success of finding country states by name',
+  })
+  async findOneCountryStateByName(
+    @Param('name') name: string,
+  ): Promise<CountryStates> {
+    return await this.countryStatesService.findOneCountryStateByName(name);
+  }
+
   @Put()
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: '행정 구역 수정' })
