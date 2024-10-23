@@ -91,6 +91,20 @@ export class TownCitiesController {
     return await this.townCitiesService.findOneTownCity(townCityId);
   }
 
+  @Get('name/:name')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '특정 시,군,구 이름으로 조회' })
+  @ApiResponse({
+    status: 200,
+    description: 'success of finding town cities by name',
+  })
+  async findTownCities(
+    @Param('name')
+    name: string,
+  ): Promise<TownCities[]> {
+    return await this.townCitiesService.findTownCitiesByName(name);
+  }
+
   @Get('me')
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '내가 방문한 도시들 조회' })

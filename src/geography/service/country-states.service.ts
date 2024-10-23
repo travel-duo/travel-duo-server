@@ -69,6 +69,25 @@ export class CountryStatesService extends SearchFilterService {
   }
 
   /**
+   * 특정 행정 구역 이름으로 조회
+   * @param name
+   */
+  async findOneCountryStateByName(name: string): Promise<CountryStates> {
+    const countryState = await this.countryStatesRepository
+      .createQueryBuilder('countryStates')
+      .leftJoin('countryStates.townCities', 'townCities')
+      .where('countryStates.name = :name', { name })
+      .select(['countryStates', 'townCities._id', 'townCities.name'])
+      .getOne();
+
+    if (!countryState) {
+      throw new NotFoundException(`CountryState with name "${name}" not found`);
+    }
+
+    return countryState;
+  }
+
+  /**
    * 행정 구역을 업데이트
    *
    * @param id
