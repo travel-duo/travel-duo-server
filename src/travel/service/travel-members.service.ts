@@ -114,6 +114,26 @@ export class TravelMembersService extends SearchFilterService {
   }
 
   /**
+   * 특정 멤버가 공유받은 가장 최근에 다녀온 여행 조회
+   *
+   * @param user
+   */
+  async findRecentSharedTravelByUser(user: Users): Promise<Travels> {
+    const travel = await this.travelMembersRepository
+      .createQueryBuilder('travelMembers')
+      .innerJoinAndSelect('travelMembers.travel', 'travels')
+      .where('travelMembers.user_id = :userId', { userId: user._id })
+      .orderBy('travels.startDate', 'DESC')
+      .getOne();
+
+    if (!travel) {
+      return null;
+    }
+
+    return travel.travel;
+  }
+
+  /**
    * 특정 멤버가 공유받은 여행들의 연도 리스트 조회
    *
    * @param user
