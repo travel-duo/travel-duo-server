@@ -272,7 +272,8 @@ export class TravelsService extends SearchFilterService {
    */
   @Transactional()
   async updateTravel(updateTravelDto: UpdateTravelDto): Promise<Travels> {
-    const { startDate, endDate, ...travelData } = updateTravelDto;
+    const { startDate, endDate, travelDetails, ...travelData } =
+      updateTravelDto;
     const travel = await this.findTravelDeep(updateTravelDto.id);
 
     if (!travel) {
@@ -286,6 +287,18 @@ export class TravelsService extends SearchFilterService {
       startDate: new Date(startDate),
       endDate: new Date(endDate),
     });
+
+    if (travelDetails) {
+      // 기존 travelDetails를 유지하면서 업데이트
+      travel.travelDetails = travel.travelDetails.map((existingDetail) => {
+        const updatedDetail = travelDetails.find(
+          (detail) => detail._id === existingDetail._id,
+        );
+        return updatedDetail
+          ? { ...existingDetail, ...updatedDetail }
+          : existingDetail;
+      });
+    }
 
     return await this.travelsRepository.save(travel);
   }

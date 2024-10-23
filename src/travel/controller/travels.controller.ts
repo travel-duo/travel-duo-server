@@ -183,7 +183,7 @@ export class TravelsController {
       travelId,
     );
   }
-  // TODO: 버그 수정 확인 필요함
+
   @Put()
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '여행 수정' })

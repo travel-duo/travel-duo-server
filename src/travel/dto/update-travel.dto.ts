@@ -5,7 +5,10 @@ import {
   IsISO8601,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { TravelDetails } from '@/travel/entities/travel-details.entity';
 
 export class UpdateTravelDto {
   @IsInt()
@@ -59,4 +62,13 @@ export class UpdateTravelDto {
     description: 'end date of the travel in ISO8601 format',
   })
   endDate: string;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => TravelDetails)
+  @ApiProperty({
+    type: [TravelDetails],
+    description: 'The details of the travel',
+  })
+  travelDetails?: TravelDetails[];
 }
