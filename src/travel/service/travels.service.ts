@@ -230,6 +230,27 @@ export class TravelsService extends SearchFilterService {
     return this.travelMembersService.findYearSharedTravelsByUser(user);
   }
 
+  async findYearCreatedTravelsByUser(userId: bigint): Promise<number[]> {
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new Error(`User with ID "${userId}" not found`);
+    }
+
+    let years = await this.travelsRepository
+      .createQueryBuilder('travels')
+      .where('creator_id = :userId', { userId })
+      .select('DISTINCT EXTRACT(YEAR FROM travels.startDate)', 'year')
+      .getRawMany();
+
+    if (!years.length) {
+      return [];
+    }
+
+    years = years.map((year) => parseInt(year.year, 10));
+
+    return years;
+  }
+
   /**
    * travelId로 공유된 멤버 조회
    *
