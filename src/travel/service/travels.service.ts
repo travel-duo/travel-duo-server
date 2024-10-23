@@ -173,6 +173,24 @@ export class TravelsService extends SearchFilterService {
   }
 
   /**
+   * userId로 가장 최근에 다녀온 내가 생성한 여행 조회
+   */
+  async findRecentTravelByUserId(userId: bigint): Promise<Travels> {
+    const travel = await this.travelsRepository
+      .createQueryBuilder('travels')
+      .innerJoinAndSelect('travels.creator', 'users')
+      .where('users._id = :userId', { userId })
+      .orderBy('travels.startDate', 'DESC')
+      .getOne();
+
+    if (!travel) {
+      throw new Error(`No recent travel found for user with ID "${userId}"`);
+    }
+
+    return travel;
+  }
+
+  /**
    * userId와 travelId로 생성한 여행 조회
    *
    * @param userId
@@ -214,6 +232,20 @@ export class TravelsService extends SearchFilterService {
     }
 
     return this.travelMembersService.findSharedTravelsByUser(user, year);
+  }
+
+  /**
+   * 특정 멤버가 공유받은 가장 최근에 다녀온 여행 조회
+   *
+   * @param userId
+   */
+  async findRecentSharedTravelByUser(userId: bigint): Promise<Travels> {
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new Error(`User with ID "${userId}" not found`);
+    }
+
+    return await this.travelMembersService.findRecentSharedTravelByUser(user)
   }
 
   /**

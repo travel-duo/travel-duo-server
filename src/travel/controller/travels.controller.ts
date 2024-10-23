@@ -121,6 +121,17 @@ export class TravelsController {
     return await this.travelsService.findTravelsDeepByUserId(userId);
   }
 
+  @Get('me/recent')
+  @ApiOperation({ summary: '가장 최근에 다녀온 내가 생성한 여행 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '가장 최근에 다녀온 내가 생성한 여행 조회 성공',
+  })
+  async findRecentTravelByUserId(@Req() req: AuthRequest): Promise<Travels> {
+    const userId = getUserId(req);
+    return await this.travelsService.findRecentTravelByUserId(userId);
+  }
+
   @Get('me/shared')
   @ApiOperation({ summary: '내가 공유 받은 여행 조회' })
   @ApiResponse({
@@ -140,6 +151,18 @@ export class TravelsController {
   ): Promise<Travels[]> {
     const userId = getUserId(req);
     return await this.travelsService.findSharedTravelsByUser(userId, year);
+  }
+
+  @Get('me/shared/recent')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '내가 공유 받은 여행 중 가장 최근에 다녀온 여행 조회' })
+  @ApiResponse({
+    status: 200,
+    description: '내가 공유 받은 여행 중 가장 최근에 다녀온 여행 조회 성공',
+  })
+  async findRecentSharedTravelByUser(@Req() req: AuthRequest): Promise<Travels> {
+    const userId = getUserId(req);
+    return await this.travelsService.findRecentSharedTravelByUser(userId);
   }
 
   @Get('me/shared/years')
