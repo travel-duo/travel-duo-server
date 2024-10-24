@@ -153,17 +153,26 @@ export class TravelsService extends SearchFilterService {
    * userId로 생성한 여행 상세 조회
    *
    * @param userId
+   * @param year
    */
-  async findTravelsDeepByUserId(userId: bigint): Promise<Travels[]> {
-    const travels = await this.travelsRepository
-      .createQueryBuilder('travels')
-      .innerJoinAndSelect('travels.creator', 'users')
-      .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
-      .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
-      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
-      .leftJoinAndSelect('townCities.countryState', 'countryState')
-      .where('users._id = :userId', { userId })
-      .getMany();
+  async findTravelsDeepByUserId(
+    userId: bigint, 
+    year?: number
+  ): Promise<Travels[]> {
+    const queryBuilder = this.travelsRepository
+    .createQueryBuilder('travels')
+    .innerJoinAndSelect('travels.creator', 'users')
+    .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
+    .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
+    .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+    .leftJoinAndSelect('townCities.countryState', 'countryState')
+    .where('users._id = :userId', { userId });
+
+    if (year) {
+      queryBuilder.andWhere('EXTRACT(YEAR FROM travels.startDate) = :year', { year });
+    }
+
+    const travels = await queryBuilder.getMany();
 
     if (!travels.length) {
       throw new Error(`No travels found for user with ID "${userId}"`);

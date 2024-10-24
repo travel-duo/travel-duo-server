@@ -116,9 +116,19 @@ export class TravelsController {
     status: 200,
     description: '내가 생성한 상세 조회 성공',
   })
-  async findDeepTravelsByMe(@Req() req: AuthRequest): Promise<Travels[]> {
+  @ApiQuery({
+    name: 'year',
+    required: false,
+    type: Number,
+    description: '조회할 연도 입력(YYYY) 또는 미입력시 전체 조회',
+  })
+  async findDeepTravelsByMe(
+    @Req() req: AuthRequest,
+    @Query('year', new DefaultValuePipe(null))
+    year?: number,
+  ): Promise<Travels[]> {
     const userId = getUserId(req);
-    return await this.travelsService.findTravelsDeepByUserId(userId);
+    return await this.travelsService.findTravelsDeepByUserId(userId, year);
   }
 
   @Get('me/recent')
