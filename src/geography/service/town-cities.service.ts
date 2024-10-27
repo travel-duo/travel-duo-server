@@ -210,10 +210,8 @@ export class TownCitiesService extends SearchFilterService {
   async countVisitedTownCities(userId: bigint): Promise<number> {
     const townCitiesCount = await this.townCitiesRepository
       .createQueryBuilder('townCities')
-      .leftJoin('townCities.locations', 'travelLocations')
-      .leftJoin('travelLocations.travelDetails', 'travelDetails')
-      .leftJoin('travelDetails.travel', 'travel')
-      .leftJoin('travel.creator', 'users')
+      .innerJoin('townCities.travels', 'travels')
+      .innerJoin('travels.creator', 'users')
       .where('users._id = :userId', { userId })
       .distinct(true)
       .getCount();
