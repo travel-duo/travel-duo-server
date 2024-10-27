@@ -163,6 +163,44 @@ export class TownCitiesService extends SearchFilterService {
   }
 
   /**
+   * 여러 시,군,구를 ID 목록으로 조회
+   *
+   * @param ids 시,군,구 ID 배열
+   * @returns 해당 ID들에 해당하는 TownCities 배열
+   * @throws NotFoundException 모든 ID에 해당하는 시,군,구가 존재하지 않을 경우
+   */
+  async findByIds(ids: bigint[]): Promise<TownCities[]> {
+    if (!ids || ids.length === 0) {
+      throw new NotFoundException('No IDs provided');
+    }
+
+    const townCities = await this.townCitiesRepository
+      .createQueryBuilder('townCities')
+      .innerJoin('townCities.countryState', 'countryState')
+      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .where('townCities._id IN (:...ids)', { ids })
+      .getMany();
+
+    if (townCities.length === 0) {
+      throw new NotFoundException('No town cities found for the provided IDs');
+    }
+
+    // 요청된 모든 ID에 대해 도시가 존재하는지 확인
+    const foundIds = townCities.map((tc) => tc._id.toString());
+    const missingIds = ids
+      .map((id) => id.toString())
+      .filter((id) => !foundIds.includes(id));
+
+    if (missingIds.length > 0) {
+      throw new NotFoundException(
+        `TownCities with IDs ${missingIds.join(', ')} not found`,
+      );
+    }
+
+    return townCities;
+  }
+
+  /**
    * 내가 방문한 특정 시,군,구 들의 방문수를 조회
    * @param userId
    */
