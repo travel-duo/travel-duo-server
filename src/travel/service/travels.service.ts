@@ -167,11 +167,11 @@ export class TravelsService extends SearchFilterService {
     const queryBuilder = this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
-      .innerJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
       .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
       // .leftJoinAndSelect('travelLocations.townCities', 'townCities')
-      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('users._id = :userId', { userId });
 
     if (year) {
@@ -196,7 +196,7 @@ export class TravelsService extends SearchFilterService {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
-      .innerJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
       .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('users._id = :userId', { userId })
       .orderBy('travels.startDate', 'DESC')
@@ -222,7 +222,7 @@ export class TravelsService extends SearchFilterService {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
-      .innerJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
       .where('users._id = :userId', { userId })
       .andWhere('travels._id = :travelId', { travelId })
       .getOne();
