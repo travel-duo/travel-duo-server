@@ -144,12 +144,15 @@ export class TownCitiesService extends SearchFilterService {
     const townCities = await this.townCitiesRepository
       .createQueryBuilder('townCities')
       .innerJoin('townCities.countryState', 'countryState')
-      .leftJoin('townCities.locations', 'travelLocations')
-      .leftJoin('travelLocations.travelDetails', 'travelDetails')
-      .leftJoin('travelDetails.travel', 'travel')
-      .leftJoin('travel.creator', 'users')
+      .innerJoin('townCities.travels', 'travels') // ManyToMany 관계를 통한 join
+      .innerJoin('travels.creator', 'users') // Travel의 creator와 join
       .where('users._id = :userId', { userId })
-      .select(['townCities', 'countryState._id', 'countryState.name'])
+      .select([
+        'townCities._id',
+        'townCities.name',
+        'countryState._id',
+        'countryState.name',
+      ])
       .distinct(true)
       .getMany();
 

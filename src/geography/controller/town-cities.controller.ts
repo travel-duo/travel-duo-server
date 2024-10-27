@@ -77,6 +77,35 @@ export class TownCitiesController {
     return await this.townCitiesService.findAllTownCities();
   }
 
+  @Get('me')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '내가 방문한 도시들 조회' })
+  @ApiResponse({
+    status: 201,
+    description: 'success of finding my visited town cities',
+  })
+  async findMyVisitedTownCities(
+    @Req() req: AuthRequest,
+  ): Promise<TownCities[]> {
+    const userId = getUserId(req);
+    return await this.townCitiesService.findMyVisitedTownCities(userId);
+  }
+
+  @Get('me/number')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '내가 방문한 도시 수 조회' })
+  @ApiResponse({
+    status: 201,
+    description: 'success of counting my visited town cities',
+  })
+  async countVisitedTownCities(
+    @Req()
+    req: AuthRequest,
+  ): Promise<number> {
+    const userId = getUserId(req);
+    return await this.townCitiesService.countVisitedTownCities(userId);
+  }
+
   @Get(':townCityId')
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 시,군,구 조회' })
@@ -103,36 +132,6 @@ export class TownCitiesController {
     name: string,
   ): Promise<TownCities[]> {
     return await this.townCitiesService.findTownCitiesByName(name);
-  }
-
-  @Get('me')
-  @UseGuards(UserGuard)
-  @ApiOperation({ summary: '내가 방문한 도시들 조회' })
-  @ApiResponse({
-    status: 201,
-    description: 'success of finding my visited town cities',
-  })
-  async findMyVisitedTownCities(
-    @Req()
-    req: AuthRequest,
-  ): Promise<TownCities[]> {
-    const userId = getUserId(req);
-    return await this.townCitiesService.findMyVisitedTownCities(userId);
-  }
-
-  @Get('me/number')
-  @UseGuards(UserGuard)
-  @ApiOperation({ summary: '내가 방문한 도시 수 조회' })
-  @ApiResponse({
-    status: 201,
-    description: 'success of counting my visited town cities',
-  })
-  async countVisitedTownCities(
-    @Req()
-    req: AuthRequest,
-  ): Promise<number> {
-    const userId = getUserId(req);
-    return await this.townCitiesService.countVisitedTownCities(userId);
   }
 
   @Put()
