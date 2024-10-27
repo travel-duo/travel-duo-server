@@ -324,7 +324,7 @@ export class TravelsService extends SearchFilterService {
    */
   @Transactional()
   async updateTravel(updateTravelDto: UpdateTravelDto): Promise<Travels> {
-    const { startDate, endDate, travelDetails, ...travelData } =
+    const { startDate, endDate, travelDetails, townCities, ...travelData } =
       updateTravelDto;
     const travel = await this.findTravelDeep(updateTravelDto.id);
 

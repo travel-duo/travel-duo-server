@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TravelDetails } from '@/travel/entities/travel-details.entity';
+import { TownCities } from '@/geography/entities/town-cities.entity';
 
 export class UpdateTravelDto {
   @IsInt()
@@ -71,4 +72,12 @@ export class UpdateTravelDto {
     description: 'The details of the travel',
   })
   travelDetails?: TravelDetails[];
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @ApiProperty({
+    type: [TownCities],
+    description: 'The ids of the town cities of the travel',
+  })
+  townCities?: TownCities[];
 }
