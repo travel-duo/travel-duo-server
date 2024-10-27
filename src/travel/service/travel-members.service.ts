@@ -122,6 +122,8 @@ export class TravelMembersService extends SearchFilterService {
     const travel = await this.travelMembersRepository
       .createQueryBuilder('travelMembers')
       .innerJoinAndSelect('travelMembers.travel', 'travels')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('travelMembers.user_id = :userId', { userId: user._id })
       .orderBy('travels.startDate', 'DESC')
       .getOne();

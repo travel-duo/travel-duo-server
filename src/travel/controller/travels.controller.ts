@@ -165,12 +165,16 @@ export class TravelsController {
 
   @Get('me/shared/recent')
   @UseGuards(UserGuard)
-  @ApiOperation({ summary: '내가 공유 받은 여행 중 가장 최근에 다녀온 여행 조회' })
+  @ApiOperation({
+    summary: '내가 공유 받은 여행 중 가장 최근에 다녀온 여행 조회',
+  })
   @ApiResponse({
     status: 200,
     description: '내가 공유 받은 여행 중 가장 최근에 다녀온 여행 조회 성공',
   })
-  async findRecentSharedTravelByUser(@Req() req: AuthRequest): Promise<Travels> {
+  async findRecentSharedTravelByUser(
+    @Req() req: AuthRequest,
+  ): Promise<Travels> {
     const userId = getUserId(req);
     return await this.travelsService.findRecentSharedTravelByUser(userId);
   }
@@ -241,5 +245,19 @@ export class TravelsController {
     @Param('travelId', ParseIntPipe) travelId: bigint,
   ): Promise<boolean> {
     return await this.travelsService.deleteTravel(travelId);
+  }
+
+  // 도시 전체 업데이트
+  @Put(':travelId/town-cities')
+  @UseGuards(UserGuard)
+  @ApiOperation({ summary: '지역 수정' })
+  updateTownCities(
+    @Param('travelId') travelId: bigint,
+    @Body() dto: { townCityIds: bigint[] },
+  ) {
+    return this.travelsService.updateTownCitiesForTravel(
+      travelId,
+      dto.townCityIds,
+    );
   }
 }

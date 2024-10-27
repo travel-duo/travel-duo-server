@@ -1,17 +1,20 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
-  JoinColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Users } from '@/user/entities/users.entity';
 import { TravelMedias } from '@/travel/entities/travel-medias.entity';
 import { TravelMembers } from '@/travel/entities/travel-members.entity';
 import { TravelDetails } from '@/travel/entities/travel-details.entity';
+import { TownCities } from '@/geography/entities/town-cities.entity';
 
 @Entity('travels')
 export class Travels {
@@ -54,4 +57,18 @@ export class Travels {
 
   @OneToMany(() => TravelDetails, (travelDetails) => travelDetails.travel)
   travelDetails: TravelDetails[];
+
+  @ManyToMany(() => TownCities, (townCities) => townCities.travels)
+  @JoinTable({
+    name: 'travels_town_cities', // 중간 테이블 이름
+    joinColumn: {
+      name: 'travel_id',
+      referencedColumnName: '_id',
+    },
+    inverseJoinColumn: {
+      name: 'town_city_id',
+      referencedColumnName: '_id',
+    },
+  })
+  townCities: TownCities[];
 }

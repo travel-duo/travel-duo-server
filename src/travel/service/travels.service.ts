@@ -16,6 +16,7 @@ import { UpdateTravelDto } from '@/travel/dto/update-travel.dto';
 import { TravelDetailsService } from '@/travel/service/travel-details.service';
 import { TravelMembersService } from '@/travel/service/travel-members.service';
 import { Users } from '@/user/entities/users.entity';
+import { TownCitiesService } from '@/geography/service/town-cities.service';
 
 @Injectable()
 export class TravelsService extends SearchFilterService {
@@ -27,6 +28,8 @@ export class TravelsService extends SearchFilterService {
     private travelDetailsService: TravelDetailsService,
     @Inject(forwardRef(() => TravelMembersService))
     private travelMembersService: TravelMembersService,
+    @Inject(forwardRef(() => TownCitiesService))
+    private townCitiesService: TownCitiesService,
   ) {
     super();
   }
@@ -81,7 +84,8 @@ export class TravelsService extends SearchFilterService {
       .leftJoinAndSelect('travelMembers.user', 'members')
       .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
       .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
-      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      // .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
       .leftJoinAndSelect('townCities.countryState', 'countryState')
       .getMany();
 
@@ -116,9 +120,10 @@ export class TravelsService extends SearchFilterService {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
       .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
       .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
-      .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      // .leftJoinAndSelect('travelLocations.townCities', 'townCities')
       .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('travels._id = :id', { id: travelId })
       .getOne();
@@ -156,20 +161,23 @@ export class TravelsService extends SearchFilterService {
    * @param year
    */
   async findTravelsDeepByUserId(
-    userId: bigint, 
-    year?: number
+    userId: bigint,
+    year?: number,
   ): Promise<Travels[]> {
     const queryBuilder = this.travelsRepository
-    .createQueryBuilder('travels')
-    .innerJoinAndSelect('travels.creator', 'users')
-    .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
-    .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
-    .leftJoinAndSelect('travelLocations.townCities', 'townCities')
-    .leftJoinAndSelect('townCities.countryState', 'countryState')
-    .where('users._id = :userId', { userId });
+      .createQueryBuilder('travels')
+      .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
+      .leftJoinAndSelect('travels.travelDetails', 'travelDetails')
+      .leftJoinAndSelect('travelDetails.locations', 'travelLocations')
+      // .leftJoinAndSelect('travelLocations.townCities', 'townCities')
+      .where('users._id = :userId', { userId });
 
     if (year) {
-      queryBuilder.andWhere('EXTRACT(YEAR FROM travels.startDate) = :year', { year });
+      queryBuilder.andWhere('EXTRACT(YEAR FROM travels.startDate) = :year', {
+        year,
+      });
     }
 
     const travels = await queryBuilder.getMany();
@@ -188,6 +196,8 @@ export class TravelsService extends SearchFilterService {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
+      .leftJoinAndSelect('townCities.countryState', 'countryState')
       .where('users._id = :userId', { userId })
       .orderBy('travels.startDate', 'DESC')
       .getOne();
@@ -212,6 +222,7 @@ export class TravelsService extends SearchFilterService {
     const travel = await this.travelsRepository
       .createQueryBuilder('travels')
       .innerJoinAndSelect('travels.creator', 'users')
+      .leftJoinAndSelect('travels.townCities', 'townCities')
       .where('users._id = :userId', { userId })
       .andWhere('travels._id = :travelId', { travelId })
       .getOne();
@@ -254,7 +265,7 @@ export class TravelsService extends SearchFilterService {
       throw new Error(`User with ID "${userId}" not found`);
     }
 
-    return await this.travelMembersService.findRecentSharedTravelByUser(user)
+    return await this.travelMembersService.findRecentSharedTravelByUser(user);
   }
 
   /**
@@ -381,5 +392,76 @@ export class TravelsService extends SearchFilterService {
       );
       return false;
     }
+  }
+
+  // 도시 추가
+  async addTownCitiesToTravel(
+    travelId: bigint,
+    townCityIds: bigint[],
+  ): Promise<Travels> {
+    const travel = await this.travelsRepository.findOne({
+      where: { _id: travelId },
+      relations: ['townCities'],
+    });
+
+    if (!travel) {
+      throw new Error(`Travel with ID "${travelId}" not found`);
+    }
+
+    const townCities = await this.townCitiesService.findByIds(townCityIds);
+
+    // 기존 townCities 배열이 없다면 초기화
+    if (!travel.townCities) {
+      travel.townCities = [];
+    }
+
+    // 새로운 townCities 추가
+    travel.townCities.push(...townCities);
+
+    return this.travelsRepository.save(travel);
+  }
+
+  // 도시 제거
+  async removeTownCitiesFromTravel(
+    travelId: bigint,
+    townCityIds: bigint[],
+  ): Promise<Travels> {
+    const travel = await this.travelsRepository.findOne({
+      where: { _id: travelId },
+      relations: ['townCities'],
+    });
+
+    if (!travel) {
+      throw new Error(`Travel with ID "${travelId}" not found`);
+    }
+
+    // 제거할 townCityIds를 제외한 나머지만 필터링
+    travel.townCities = travel.townCities.filter(
+      (city) => !townCityIds.includes(city._id),
+    );
+
+    return this.travelsRepository.save(travel);
+  }
+
+  // 도시 전체 업데이트 (기존 관계를 모두 덮어씀)
+  async updateTownCitiesForTravel(
+    travelId: bigint,
+    townCityIds: bigint[],
+  ): Promise<Travels> {
+    const travel = await this.travelsRepository.findOne({
+      where: { _id: travelId },
+      relations: ['townCities'],
+    });
+
+    if (!travel) {
+      throw new Error(`Travel with ID "${travelId}" not found`);
+    }
+
+    const townCities = await this.townCitiesService.findByIds(townCityIds);
+
+    // 기존 관계를 모두 새로운 관계로 교체
+    travel.townCities = townCities;
+
+    return this.travelsRepository.save(travel);
   }
 }
