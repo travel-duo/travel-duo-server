@@ -33,7 +33,6 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:3001',
       'https://scheduling.co.kr',
-      'http://192.168.1.134:3001',
     ], // 클라이언트 도메인
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
