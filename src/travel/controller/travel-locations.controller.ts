@@ -106,6 +106,7 @@ export class TravelLocationsController {
     );
   }
 
+  // TODO: 버그수정
   @Delete(':travelLocationId')
   @UseGuards(UserGuard)
   @ApiOperation({ summary: '특정 여행지 장소 삭제' })
