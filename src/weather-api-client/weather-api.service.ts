@@ -6,10 +6,7 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import * as dayjs from 'dayjs';
-import {
-  LocationCoordinates,
-  MidTermForecastRegion,
-} from './weather-api.enums';
+import { LocationData } from './weather-api.enums';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -26,7 +23,7 @@ export class WeatherApiService {
 
   async getTodayWeather(locationName: string) {
     // 지역명에 해당하는 좌표 가져오기
-    const location = LocationCoordinates[locationName.toUpperCase()];
+    const location = LocationData[locationName.toUpperCase()].coordinates;
     if (!location) {
       throw new NotFoundException(`Location ${locationName} not found`);
     }
@@ -259,9 +256,8 @@ export class WeatherApiService {
   }
 
   async getWeeklyWeather(locationName: string) {
-    const location = LocationCoordinates[locationName.toUpperCase()];
-    const midRegion = MidTermForecastRegion[locationName.toUpperCase()];
-    if (!location || !midRegion) {
+    const location = LocationData[locationName.toUpperCase()];
+    if (!location) {
       throw new NotFoundException(`Location ${locationName} not found`);
     }
 
@@ -282,14 +278,14 @@ export class WeatherApiService {
 
       // 단기예보 데이터 (오늘+1 ~ 오늘+2)
       const shortTermWeather = await this.getShortTermWeather(
-        location,
+        location.coordinates,
         locationName,
       );
       weeklyWeather.push(...shortTermWeather);
 
       // 중기예보 데이터 (오늘+3 ~ 오늘+6)
       const midTermWeather = await this.getMidTermWeather(
-        midRegion,
+        location.regId,
         locationName,
       );
       weeklyWeather.push(...midTermWeather);
