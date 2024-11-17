@@ -14,6 +14,7 @@ import { TravelDetailsService } from '@/travel/service/travel-details.service';
 import { TravelLocationsService } from '@/travel/service/travel-locations.service';
 import { TownCitiesService } from '@/geography/service/town-cities.service';
 import { TravelMembersService } from '@/travel/service/travel-members.service';
+import { WeatherApiService } from '@/weather-api-client/weather-api.service';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TravelMembersService } from '@/travel/service/travel-members.service';
     TravelLocationsService,
     TownCitiesService,
     TravelMembersService,
+    WeatherApiService,
   ],
   exports: [
     TypeOrmModule,
@@ -43,6 +45,7 @@ import { TravelMembersService } from '@/travel/service/travel-members.service';
     TravelLocationsService,
     TownCitiesService,
     TravelMembersService,
+    WeatherApiService,
   ],
 })
 export class CommonModule {}
