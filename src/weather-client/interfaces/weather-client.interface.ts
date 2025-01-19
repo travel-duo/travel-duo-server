@@ -13,6 +13,12 @@ export class CurrentWeather {
   @ApiProperty({ description: 'Temperature in Celsius', example: 25.5 })
   temp: number;
 
+  @ApiProperty({ description: 'Low temperature in Celsius', example: 18 })
+  minTemp: number;
+
+  @ApiProperty({ description: 'High temperature in Celsius', example: 24 })
+  maxTemp: number;
+
   @ApiProperty({ description: 'Sky status', example: '맑음' })
   sky: string;
 }

@@ -67,7 +67,7 @@ export class KmaWeatherService implements WeatherClient {
       // 실제 사용 시 날짜(base_date, base_time 등)를 적절히 계산하여 호출해야 합니다.
       const baseDate = this._getBaseDate(); // 예: YYYYMMDD
       const baseTime = this._getBaseTime(); // 예: HHmm
-      const response = await this.axios.get(
+      const ultraSrtResponse = await this.axios.get(
         '/VilageFcstInfoService_2.0/getUltraSrtNcst',
         {
           params: {
@@ -83,15 +83,38 @@ export class KmaWeatherService implements WeatherClient {
 
       // 3. 응답 데이터 파싱
       // 기상청 응답 구조에 맞춰 필요한 요소를 찾아서 WeatherForecast 형태로 가공
-      const forecastData = response.data; // 실제 응답 구조에 따라 가공 필요
+      const currentData = ultraSrtResponse.data; // 실제 응답 구조에 따라 가공 필요
       // 아래는 "예시" 가공 로직입니다. 실제 필드명/로직을 꼭 확인하세요.
-      const currentTemp = this._parseTemperature(forecastData);
-      const skyStatus = this._parseSkyStatus(forecastData);
+      const currentTemp = this._parseTemperature(currentData);
+      const skyStatus = this._parseSkyStatus(currentData);
+
+      //오늘 하루 중 최고 기온, 최저 기온
+
+      const srtResponse = await this.axios.get(
+        '/VilageFcstInfoService_2.0/getVilageFcst',
+        {
+          params: {
+            serviceKey: this.apiKey,
+            base_date: dayjs().subtract(1, 'day').format('YYYYMMDD'),
+            base_time: '2300',
+            numOfRows: 312,
+            nx,
+            ny,
+            dataType: 'JSON',
+          },
+        },
+      );
+
+      const srtData = srtResponse.data;
+      const todayMaxTemp = this._parseTodayMaxTemp(srtData);
+      const todayMinTemp = this._parseTodayMinTemp(srtData);
 
       const result: CurrentWeather = {
         location: await this._getLocation(lon, lat),
         date: `${baseDate}${baseTime}`,
         temp: currentTemp,
+        minTemp: todayMinTemp,
+        maxTemp: todayMaxTemp,
         sky: skyStatus,
       };
       return result;
@@ -99,6 +122,40 @@ export class KmaWeatherService implements WeatherClient {
       this.logger.error('Failed to fetch present weather', error);
       throw error;
     }
+  }
+
+  private _parseTodayMaxTemp(rawData: any): number {
+    const body = rawData?.response?.body;
+    if (!body || body.totalCount === 0) return -999;
+
+    const item = body.items.item;
+    if (!item) return -999;
+    const todayStr = dayjs().format('YYYYMMDD');
+    return item.reduce((acc: number, data: any) => {
+      if (data.category === 'TMP') {
+        if (data.fcstDate === todayStr) {
+          return Math.max(acc, Number(data.fcstValue));
+        }
+      }
+      return acc;
+    }, -999);
+  }
+
+  private _parseTodayMinTemp(rawData: any): number {
+    const body = rawData?.response?.body;
+    if (!body || body.totalCount === 0) return -999;
+
+    const item = body.items.item;
+    if (!item) return -999;
+    const todayStr = dayjs().format('YYYYMMDD');
+    return item.reduce((acc: number, data: any) => {
+      if (data.category === 'TMP') {
+        if (data.fcstDate === todayStr) {
+          return Math.min(acc, Number(data.fcstValue));
+        }
+      }
+      return acc;
+    }, 999);
   }
 
   /**
@@ -220,7 +277,6 @@ export class KmaWeatherService implements WeatherClient {
             regId: midRegId,
             tmFc,
           },
-          timeout: 1000,
         },
       );
 
@@ -238,7 +294,6 @@ export class KmaWeatherService implements WeatherClient {
             regId,
             tmFc,
           },
-          timeout: 1000,
         },
       );
 
@@ -395,7 +450,7 @@ export class KmaWeatherService implements WeatherClient {
   private _getBaseTime(): string {
     // 예시: 현재 시각 기준으로 초단기 실황 base_time = 정시 전후로 조정
     // 실제로는 기상청 API 가이드에 따라 적절히 처리 필요
-    return dayjs().subtract(50, 'minutes').format('HH00');
+    return dayjs().subtract(11, 'minutes').format('HH00');
   }
 
   /**

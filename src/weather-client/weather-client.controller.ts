@@ -46,7 +46,7 @@ export class WeatherController {
   @ApiQuery({ name: 'lon', required: true, type: Number })
   @ApiQuery({ name: 'lat', required: true, type: Number })
   @ApiResponse({ status: 200, type: WeatherForecast, isArray: true })
-  async getLongTermForecast(
+  async getMidTermForecast(
     @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: LonLatQueryDto,
   ): Promise<WeatherForecast[]> {
