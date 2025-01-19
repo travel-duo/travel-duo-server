@@ -64,11 +64,7 @@ export class WaWeatherService implements WeatherClient {
       });
       const current = forecastResponse.data?.current;
 
-      const forecast = forecastResponse.data?.forecast?.forecastday?.find(
-        (item) => {
-          return dayjs(item.date).isSame(dayjs(), 'day');
-        },
-      );
+      const forecast = forecastResponse.data?.forecast?.forecastday[0];
 
       // 3) 응답 파싱
       const dateStr = dayjs(current?.last_updated).format('YYYYMMDDHHmm');
