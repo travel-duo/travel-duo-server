@@ -40,7 +40,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
           TownCities,
           CountryStates,
         ],
-        synchronize: false, //configService.get<boolean>('DB_SYNCHRONIZE', false),
+        synchronize: true, //configService.get<boolean>('DB_SYNCHRONIZE', false),
         namingStrategy: new SnakeNamingStrategy(),
         extra: {
           ssl: {

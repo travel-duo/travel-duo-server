@@ -14,6 +14,8 @@ import { CountryStatesModule } from '@/geography/module/country-states.module';
 import { TownCitiesModule } from '@/geography/module/town-cities.module';
 import { TravelMembersModule } from '@/travel/module/travel-members.module';
 import { WeatherApiClientModules } from '@/weather-api-client/weather-api-client.modules';
+import { LocalClientModule } from '@/local-client/local-client.module';
+import { WeatherClientModule } from '@/weather-client/weather-client.module';
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { WeatherApiClientModules } from '@/weather-api-client/weather-api-client
     TravelLocationsModule,
     TravelMembersModule,
     WeatherApiClientModules,
+    WeatherClientModule,
+    LocalClientModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

@@ -1,9 +1,9 @@
 import {
   Controller,
   Get,
-  Param,
   HttpException,
   HttpStatus,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { WeatherApiService } from './weather-api.service';
@@ -14,21 +14,20 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @Controller({
   path: 'weather-api',
   version: '1',
 })
 @ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @ApiTags('weather-api')
 export class WeatherAPIController {
   constructor(private readonly weatherService: WeatherApiService) {}
 
   // 특정 지역의 일주일치 날씨 정보 제공
   @Get('weekly/:region')
-  @UseGuards(UserGuard)
+  // @UseGuards(UserGuard)
   @ApiOperation({ summary: '일주일 날씨 데이터 조회' })
   @ApiResponse({
     status: 200,

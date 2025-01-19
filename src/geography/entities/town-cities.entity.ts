@@ -27,6 +27,12 @@ export class TownCities {
   @Column({ type: 'double precision', nullable: true })
   lat: number;
 
+  @Column({ type: 'varchar', length: 20, default: '' })
+  regId: string;
+
+  @Column({ type: 'varchar', length: 20, default: '' })
+  midRegId: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

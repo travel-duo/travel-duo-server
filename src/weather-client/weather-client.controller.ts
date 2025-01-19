@@ -1,40 +1,56 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { WeatherClientFactory, WeatherServiceType } from './weather-client.factory';
-import { WeatherForecast } from './interface/weather-client.interface';
+import { Controller, Get, Query, ValidationPipe } from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  WeatherClientFactory,
+  WeatherServiceType,
+} from './weather-client.factory';
+import {
+  CurrentWeather,
+  WeatherForecast,
+} from '@/weather-client/interfaces/weather-client.interface';
+import { LonLatQueryDto } from '@/weather-client/dto/lon-lat-query.dto';
 
 @ApiTags('weather')
 @Controller({ path: 'weather', version: '1' })
 export class WeatherController {
   constructor(private weatherClientFactory: WeatherClientFactory) {}
 
-  @Get('forecast')
-  @ApiOperation({ summary: 'Get today\'s weather forecast' })
-  @ApiQuery({ name: 'nx', type: Number, description: 'X coordinate' })
-  @ApiQuery({ name: 'ny', type: Number, description: 'Y coordinate' })
-  @ApiResponse({ status: 200, description: 'Successful.', type: [WeatherForecast] })
-  async getForecast(
-    @Query('nx') nx: string,
-    @Query('ny') ny: string
-  ): Promise<WeatherForecast[]> {
-    const weatherClient = this.weatherClientFactory.getClient(WeatherServiceType.WEATHER);
-    return weatherClient.getTodayForecast(parseInt(nx), parseInt(ny));
+  @Get('current')
+  @ApiOperation({ summary: '현재 날씨 정보를 가져옵니다.' })
+  @ApiQuery({ name: 'lon', required: true, type: Number })
+  @ApiQuery({ name: 'lat', required: true, type: Number })
+  @ApiResponse({ status: 200, type: CurrentWeather })
+  async getCurrentWeather(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: LonLatQueryDto,
+  ): Promise<CurrentWeather> {
+    const client = this.weatherClientFactory.getClient(WeatherServiceType.KMA);
+    return client.getCurrentWeather(query.lon, query.lat);
   }
 
-  @Get('short-term')
-  @ApiOperation({ summary: 'Get short-term weather forecast' })
-  @ApiQuery({ name: 'nx', type: Number, description: 'X coordinate' })
-  @ApiQuery({ name: 'ny', type: Number, description: 'Y coordinate' })
-  @ApiQuery({ name: 'baseDate', type: String, description: 'Base date (YYYYMMDD)' })
-  @ApiQuery({ name: 'baseTime', type: String, description: 'Base time (HHMM)' })
-  @ApiResponse({ status: 200, description: 'Successful.', type: [WeatherForecast] })
+  @Get('forecast/short')
+  @ApiOperation({ summary: '단기 예보 정보를 가져옵니다.' })
+  @ApiQuery({ name: 'lon', required: true, type: Number })
+  @ApiQuery({ name: 'lat', required: true, type: Number })
+  @ApiResponse({ status: 200, type: WeatherForecast, isArray: true })
   async getShortTermForecast(
-    @Query('nx') nx: string,
-    @Query('ny') ny: string,
-    @Query('baseDate') baseDate: string,
-    @Query('baseTime') baseTime: string
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: LonLatQueryDto,
   ): Promise<WeatherForecast[]> {
-    const weatherClient = this.weatherClientFactory.getClient(WeatherServiceType.WEATHER);
-    return weatherClient.getShortTermForecast(parseInt(nx), parseInt(ny), baseDate, baseTime);
+    const client = this.weatherClientFactory.getClient(WeatherServiceType.KMA);
+    return client.getShortTermForecast(query.lon, query.lat);
+  }
+
+  @Get('forecast/mid')
+  @ApiOperation({ summary: '중기 예보 정보를 가져옵니다.' })
+  @ApiQuery({ name: 'lon', required: true, type: Number })
+  @ApiQuery({ name: 'lat', required: true, type: Number })
+  @ApiResponse({ status: 200, type: WeatherForecast, isArray: true })
+  async getLongTermForecast(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: LonLatQueryDto,
+  ): Promise<WeatherForecast[]> {
+    const client = this.weatherClientFactory.getClient(WeatherServiceType.KMA);
+    return client.getMidTermForecast(query.lon, query.lat);
   }
 }

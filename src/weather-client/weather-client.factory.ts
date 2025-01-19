@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { WeatherClient } from '@/weather-client/interface/weather-client.interface';
-import { WeatherService } from '@/weather-client/services/weather.service';
+import { WeatherClient } from '@/weather-client/interfaces/weather-client.interface';
+import { KmaWeatherService } from '@/weather-client/services/kma-weather.service';
 
 export enum WeatherServiceType {
-  WEATHER = 'Weather',
+  KMA = 'korea-meteorological-administration',
 }
 
 @Injectable()
 export class WeatherClientFactory {
-  constructor(private weatherService: WeatherService) {}
+  constructor(private kmaWeatherService: KmaWeatherService) {}
 
   getClient(clientType: WeatherServiceType): WeatherClient {
     switch (clientType) {
-      case WeatherServiceType.WEATHER:
-        return this.weatherService;
+      case WeatherServiceType.KMA:
+        return this.kmaWeatherService;
       default:
         throw new Error(`Unsupported weather type: ${clientType}`);
     }
