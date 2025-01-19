@@ -34,8 +34,10 @@ export class KmaWeatherService implements WeatherClient {
     private townCitiesRepository: Repository<TownCities>,
     private localClientFactory: LocalClientFactory,
   ) {
-    this.apiEndpoint = this.configService.get<string>('WEATHER_API_ENDPOINT');
-    this.apiKey = this.configService.get<string>('WEATHER_SERVICE_KEY');
+    this.apiEndpoint = this.configService.get<string>(
+      'KMA_WEATHER_API_ENDPOINT',
+    );
+    this.apiKey = this.configService.get<string>('KMA_WEATHER_SERVICE_KEY');
 
     if (!this.apiEndpoint || !this.apiKey) {
       throw new Error('Weather API configuration is missing');

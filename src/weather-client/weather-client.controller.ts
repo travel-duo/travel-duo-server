@@ -24,7 +24,7 @@ export class WeatherController {
     @Query(new ValidationPipe({ transform: true, whitelist: true }))
     query: LonLatQueryDto,
   ): Promise<CurrentWeather> {
-    const client = this.weatherClientFactory.getClient(WeatherServiceType.KMA);
+    const client = this.weatherClientFactory.getClient(WeatherServiceType.WA);
     return client.getCurrentWeather(query.lon, query.lat);
   }
 

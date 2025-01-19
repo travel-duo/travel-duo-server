@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TownCities } from '@/geography/entities/town-cities.entity';
 import { LocalClientModule } from '@/local-client/local-client.module';
+import { WaWeatherService } from '@/weather-client/services/wa-weather.service';
 
 @Module({
   imports: [
@@ -15,7 +16,12 @@ import { LocalClientModule } from '@/local-client/local-client.module';
     LocalClientModule,
   ],
   controllers: [WeatherController],
-  providers: [WeatherClientFactory, KmaWeatherService, WeatherGridConverter],
+  providers: [
+    WeatherClientFactory,
+    KmaWeatherService,
+    WaWeatherService,
+    WeatherGridConverter,
+  ],
   exports: [WeatherClientFactory],
 })
 export class WeatherClientModule {}

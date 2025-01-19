@@ -1,8 +1,8 @@
 // weather-api.service.ts
 import {
   Injectable,
-  NotFoundException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import axios from 'axios';
 import * as dayjs from 'dayjs';
@@ -14,7 +14,9 @@ export class WeatherApiService {
   private readonly weatherApiKey: string;
 
   constructor(private configService: ConfigService) {
-    this.weatherApiKey = this.configService.get<string>('WEATHER_SERVICE_KEY');
+    this.weatherApiKey = this.configService.get<string>(
+      'KMA_WEATHER_SERVICE_KEY',
+    );
 
     if (!this.weatherApiKey) {
       throw new Error('Weather API configuration is missing');
